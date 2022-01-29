@@ -100,7 +100,7 @@ export default function Simulation() {
       interval = setInterval(step, 1000 / fps);
     }
     return () => clearInterval(interval);
-  }, [running]);
+  }, [running, particles]);
 
   return (
     <div className="simulation">

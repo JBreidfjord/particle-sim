@@ -22,22 +22,22 @@ export default class Particle {
   static handleParticleCollisions(particles) {
     particles.forEach((particle1, i) => {
       particles.forEach((particle2, j) => {
-        if (i !== j) {
+        // Skip previous and same particles to avoid duplicate collision detection
+        if (j < i) {
           // Calculate distance between particles
-          let distanceBetween = Math.sqrt(((particle1.x - particle2.x) ** 2) + ((particle1.y - particle2.y) ** 2))
-          
-          if (distanceBetween < ((particle1.r * 2))) {
+          const distanceBetween = Math.hypot(particle1.x - particle2.x, particle1.y - particle2.y);
+
+          if (distanceBetween < particle1.r + particle2.r) {
             // Set momentum and velocity calculations using the conservation of momentum
 
             // Placeholder to recognize if particles collided
-            particle1.ax = -1;          
+            particle1.ax = -1;
+            particle2.ax = -1;
           }
-
-          };
-        });
+        }
       });
-    };
-
+    });
+  }
 
   update(dt) {
     // Update velocity
