@@ -14,6 +14,16 @@ const getPixelRatio = (ctx) => {
   return (window.devicePixelRatio || 1) / backingStore;
 };
 
+CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
+  const ctx = this;
+
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, 2 * Math.PI);
+
+  ctx.fillStyle = color;
+  ctx.fill();
+};
+
 export default function Simulation() {
   const canvasRef = useRef(null);
 
@@ -40,10 +50,15 @@ export default function Simulation() {
       setScale();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.height / 4, 0, 2 * Math.PI);
-      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-      ctx.fill();
+      const radius = 50;
+      for (let i = 0; i < 10; i++) {
+        ctx.drawCircle(
+          radius + Math.random() * (canvas.width - radius * 2),
+          radius + Math.random() * (canvas.height - radius * 2),
+          radius,
+          `hsl(${Math.random() * 360}, 100%, 50%)`
+        );
+      }
     };
 
     let requestId = requestAnimationFrame(render);
