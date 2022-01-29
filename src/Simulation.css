@@ -1,0 +1,11 @@
+.simulation {
+  padding: 10px;
+  text-align: center;
+}
+
+.simulation canvas {
+  display: block;
+  margin: 0 auto;
+  width: 600px;
+  height: 600px;
+}
