@@ -26,10 +26,11 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
   ctx.fill();
 };
 
+const numParticles = 2;
 export default function Simulation() {
   const [particles, setParticles] = useState(() => {
     let particles = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < numParticles; i++) {
       particles.push(Particle.random());
     }
     return particles;
@@ -45,8 +46,10 @@ export default function Simulation() {
     // Handle resizing
     const setScale = () => {
       const ratio = getPixelRatio(ctx);
-      const width = Math.round(window.innerWidth * 0.75);
-      const height = Math.round(window.innerHeight * 0.75);
+      // const width = Math.round(window.innerWidth * 0.75);
+      // const height = Math.round(window.innerHeight * 0.75);
+      const width = 600;
+      const height = 600;
 
       const needResize = canvas.width !== width * ratio || canvas.height !== height * ratio;
 
@@ -61,15 +64,18 @@ export default function Simulation() {
     const render = () => {
       setScale();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.rect(0, 0, canvas.width, canvas.height);
+      ctx.stroke();
 
-      for (const particle of particles) {
+      particles.forEach((particle) => {
         ctx.drawCircle(
           particle.x * canvas.width,
           canvas.height - particle.y * canvas.height,
-          particle.r,
+          particle.r * canvas.height,
           "rgba(0, 0, 0, 0.5)"
         );
-      }
+      });
     };
 
     let requestId = requestAnimationFrame(render);
@@ -106,7 +112,7 @@ export default function Simulation() {
         onClick={() =>
           setParticles(() => {
             let particles = [];
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < numParticles; i++) {
               particles.push(Particle.random());
             }
             return particles;
