@@ -10,12 +10,13 @@ export default class Particle {
   }
 
   static random() {
+    const r = 0.04;
     return new Particle(
-      Math.random(),
-      Math.random(),
+      Math.max(Math.min(Math.random(), 1.0 - r), r),
+      Math.max(Math.min(Math.random(), 1.0 - r), r),
       Math.random() - 0.5,
       Math.random() - 0.5,
-      0.04
+      r
     );
   }
 
