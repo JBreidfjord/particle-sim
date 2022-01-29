@@ -31,8 +31,10 @@ export default class Particle {
             // Set momentum and velocity calculations using the conservation of momentum
 
             // Placeholder to recognize if particles collided
-            particle1.ax = -1;
-            particle2.ax = -1;
+            particle1.vx = -particle1.vx;
+            particle1.vy = -particle1.vy;
+            particle2.vx = -particle2.vx;
+            particle2.vy = -particle2.vy;
           }
         }
       });
