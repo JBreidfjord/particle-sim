@@ -6,7 +6,7 @@ export default class Particle {
     this.vy = initialVy;
     this.r = radius;
     this.ax = 0.0;
-    this.ay = -0.5;
+    this.ay = 0.0;
   }
 
   static random() {
@@ -18,6 +18,26 @@ export default class Particle {
       0.04
     );
   }
+
+  static handleParticleCollisions(particles) {
+    particles.forEach((particle1, i) => {
+      particles.forEach((particle2, j) => {
+        if (i !== j) {
+          // Calculate distance between particles
+          let distanceBetween = Math.sqrt(((particle1.x - particle2.x) ** 2) + ((particle1.y - particle2.y) ** 2))
+          
+          if (distanceBetween < ((particle1.r * 2))) {
+            // Set momentum and velocity calculations using the conservation of momentum
+
+            // Placeholder to recognize if particles collided
+            particle1.ax = -1;          
+          }
+
+          };
+        });
+      });
+    };
+
 
   update(dt) {
     // Update velocity

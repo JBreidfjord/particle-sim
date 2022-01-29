@@ -92,6 +92,7 @@ export default function Simulation() {
           return particle;
         });
       });
+      Particle.handleParticleCollisions(particles);
     };
 
     let interval;
