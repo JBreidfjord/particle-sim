@@ -1,6 +1,8 @@
 import "./Simulation.css";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import Particle from "./Particle";
 
 const getPixelRatio = (ctx) => {
   let backingStore =
@@ -25,12 +27,22 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
 };
 
 export default function Simulation() {
+  const [particles, setParticles] = useState(() => {
+    let particles = [];
+    for (let i = 0; i < 10; i++) {
+      particles.push(Particle.random());
+    }
+    return particles;
+  });
+  const [running, setRunning] = useState(false);
   const canvasRef = useRef(null);
 
+  // Handle canvas rendering
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
+    // Handle resizing
     const setScale = () => {
       const ratio = getPixelRatio(ctx);
       const width = Math.round(window.innerWidth * 0.75);
@@ -50,25 +62,59 @@ export default function Simulation() {
       setScale();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const radius = 50;
-      for (let i = 0; i < 10; i++) {
+      for (const particle of particles) {
         ctx.drawCircle(
-          radius + Math.random() * (canvas.width - radius * 2),
-          radius + Math.random() * (canvas.height - radius * 2),
-          radius,
-          `hsl(${Math.random() * 360}, 100%, 50%)`
+          particle.x * canvas.width,
+          canvas.height - particle.y * canvas.height,
+          particle.r,
+          "rgba(0, 0, 0, 0.5)"
         );
       }
     };
 
     let requestId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(requestId);
-  }, []);
+  }, [particles]);
+
+  // Handle running simulation
+  const fps = 120;
+  useEffect(() => {
+    const step = () => {
+      setParticles((prevParticles) => {
+        return prevParticles.map((particle) => {
+          particle.update(1 / fps);
+          return particle;
+        });
+      });
+    };
+
+    let interval;
+    if (running) {
+      interval = setInterval(step, 1000 / fps);
+    }
+    return () => clearInterval(interval);
+  }, [running]);
 
   return (
     <div className="simulation">
       <h2>Particle Sim</h2>
       <canvas ref={canvasRef}></canvas>
+      <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
+        {running ? "Stop" : "Start"}
+      </button>
+      <button
+        onClick={() =>
+          setParticles(() => {
+            let particles = [];
+            for (let i = 0; i < 10; i++) {
+              particles.push(Particle.random());
+            }
+            return particles;
+          })
+        }
+      >
+        Reset
+      </button>
     </div>
   );
 }
