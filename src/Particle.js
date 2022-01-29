@@ -61,10 +61,32 @@ export default class Particle {
     // Bottom | y - r | 0.0
     // Top | y + r | 1.0
     if (this.x - this.r <= 0.0 || this.x + this.r >= 1.0) {
+      // Flip horizontal velocity
       this.vx = -this.vx;
+
+      // Correct x position
+      // x at the time of collision is either radius or 1 - radius
+      const xtc = this.x - this.r <= 0.0 ? this.r : 1 - this.r;
+      // Calculate change in x after collision occurs
+      // dx = x(1) - x(tc)
+      // dx is reflected about the vertical line at x(tc)
+      // Calculate final corrected x value
+      // x = x(tc) - dx = x(tc) - (x(1) - x(tc)) = 2x(tc) - x(1)
+      this.x = 2 * xtc - this.x;
     }
     if (this.y - this.r <= 0.0 || this.y + this.r >= 1.0) {
+      // Flip vertical velocity
       this.vy = -this.vy;
+
+      // Correct y position
+      // y at the time of collision is either radius or 1 - radius
+      const ytc = this.y - this.r <= 0.0 ? this.r : 1 - this.r;
+      // Calculate change in y after collision occurs
+      // dy = y(1) - y(tc)
+      // dy is reflected about the horizontal line at y(tc)
+      // Calculate final corrected y value
+      // y = y(tc) - dy = y(tc) - (y(1) - y(tc)) = 2y(tc) - y(1)
+      this.y = 2 * ytc - this.y;
     }
   }
 }
