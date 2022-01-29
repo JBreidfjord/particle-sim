@@ -43,13 +43,17 @@ export default class Particle {
   }
 
   update(dt) {
+    // Store old velocity to update velocity and position simultaneously
+    const vx = this.vx;
+    const vy = this.vy;
+
     // Update velocity
     this.vx += this.ax * dt;
     this.vy += this.ay * dt;
 
     // Update position
-    this.x += this.vx * dt;
-    this.y += this.vy * dt;
+    this.x += vx * dt;
+    this.y += vy * dt;
 
     this.handleBoxCollision();
   }
