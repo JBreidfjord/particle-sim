@@ -10,7 +10,13 @@ export default class Particle {
   }
 
   static random() {
-    return new Particle(Math.random(), Math.random(), Math.random() - 0.5, Math.random() - 0.5, 50);
+    return new Particle(
+      Math.random(),
+      Math.random(),
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+      0.04
+    );
   }
 
   update(dt) {
@@ -21,5 +27,21 @@ export default class Particle {
     // Update position
     this.x += this.vx * dt;
     this.y += this.vy * dt;
+
+    this.handleBoxCollision();
+  }
+
+  handleBoxCollision() {
+    // Side | Particle | Box
+    // Left | x - r | 0.0
+    // Right | x + r | 1.0
+    // Bottom | y - r | 0.0
+    // Top | y + r | 1.0
+    if (this.x - this.r <= 0.0 || this.x + this.r >= 1.0) {
+      this.vx = -this.vx;
+    }
+    if (this.y - this.r <= 0.0 || this.y + this.r >= 1.0) {
+      this.vy = -this.vy;
+    }
   }
 }
