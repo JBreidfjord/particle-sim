@@ -11,9 +11,22 @@ export default class Particle {
 
   static random() {
     const r = 0.04;
+    let initialX = Math.max(Math.min(Math.random(), 1.0 - r), r);
+    let initialY = Math.max(Math.min(Math.random(), 1.0 - r), r);
+    
+    while (initialX + r >= 1 || initialX - r <= 0) {
+      initialX = Math.max(Math.min(Math.random(), 1.0 - r), r); 
+      
+    };
+
+    while (initialY + r >= 1 || initialY - r <= 0) {
+      initialY = Math.max(Math.min(Math.random(), 1.0 - r), r); 
+      
+    };
+
     return new Particle(
-      Math.max(Math.min(Math.random(), 1.0 - r), r),
-      Math.max(Math.min(Math.random(), 1.0 - r), r),
+      initialX,
+      initialY,
       Math.random() - 0.5,
       Math.random() - 0.5,
       r
