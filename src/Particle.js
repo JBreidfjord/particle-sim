@@ -25,31 +25,32 @@ export default class Particle {
       particles.forEach((particle2, j) => {
         // Skip previous and same particles to avoid duplicate collision detection
         if (j < i) {
+          // Set the differences in velocities and positions
+          const vxDiff = particle1.vx - particle2.vx;
+          const vyDiff = particle1.vy - particle2.vy;
+          const xDiff = particle2.x - particle1.x;
+          const yDiff = particle2.y - particle1.y;
+
           // Calculate distance between particles
-          const distanceBetween = Math.hypot(particle1.x - particle2.x, particle1.y - particle2.y);
+          const distanceBetween = Math.hypot(xDiff, yDiff);
 
           if (distanceBetween < particle1.r + particle2.r) {
             // Set momentum and velocity calculations using the conservation of momentum
             
-            // Set the differences in velocities and positions
-            const vxDiff = particle1.vx - particle2.vx;
-            const vyDiff = particle1.vy - particle2.vy;
-            const xDiff = particle2.x - particle1.x;
-            const yDiff = particle2.y - particle1.y;
-
             // Prevent overlap of particles
             if (vxDiff * xDiff + vyDiff * yDiff >= 0) {
+
               // Find angle between the particles at the point of collision
-              const angleBetween = -Math.atan2((particle2.y - particle1.y), (particle2.x - particle1.x));
+              const angleBetween = -Math.atan2((yDiff), (xDiff));
 
               // Calculate the velocities along the plane of collision
               const initialVelocity1 = {
-                x: particle1.vx * Math.cos(angleBetween) - particle1.vy * Math.sin(angleBetween),
-                y: particle1.vx * Math.sin(angleBetween) - particle1.vy * Math.cos(angleBetween)
+                x: (particle1.vx * Math.cos(angleBetween)) - (particle1.vy * Math.sin(angleBetween)),
+                y: (particle1.vx * Math.sin(angleBetween)) + (particle1.vy * Math.cos(angleBetween))
               };
               const initialVelocity2 = {
-                x: particle2.vx * Math.cos(angleBetween) - particle2.vy * Math.sin(angleBetween),
-                y: particle2.vx * Math.sin(angleBetween) - particle2.vy * Math.cos(angleBetween)
+                x: (particle2.vx * Math.cos(angleBetween)) - (particle2.vy * Math.sin(angleBetween)),
+                y: (particle2.vx * Math.sin(angleBetween)) + (particle2.vy * Math.cos(angleBetween))
               };
 
               // Use the 1D conservation of momentum (all (m1 - m2) goes to 0) to get the final velocity
@@ -57,20 +58,21 @@ export default class Particle {
               const finalVelocity2 = {x: initialVelocity1.x, y: initialVelocity2.y};
 
               // Reset the angle to the original axis
-              const fianlVector1 = {
-                x: finalVelocity1.x * Math.cos(-angleBetween) - finalVelocity1.y * Math.sin(-angleBetween),
-                y: finalVelocity1.x * Math.sin(-angleBetween) - finalVelocity1.y * Math.cos(-angleBetween)
+              const finalVector1 = {
+                x: (finalVelocity1.x * Math.cos(-angleBetween)) - (finalVelocity1.y * Math.sin(-angleBetween)),
+                y: (finalVelocity1.x * Math.sin(-angleBetween)) + (finalVelocity1.y * Math.cos(-angleBetween))
               };
-              const fianlVector2 = {
-                x: finalVelocity2.x * Math.cos(-angleBetween) - finalVelocity2.y * Math.sin(-angleBetween),
-                y: finalVelocity2.x * Math.sin(-angleBetween) - finalVelocity2.y * Math.cos(-angleBetween)
+              const finalVector2 = {
+                x: (finalVelocity2.x * Math.cos(-angleBetween)) - (finalVelocity2.y * Math.sin(-angleBetween)),
+                y: (finalVelocity2.x * Math.sin(-angleBetween)) + (finalVelocity2.y * Math.cos(-angleBetween))
               };
 
               // Convert the vectors to the particle velocities
-              particle1.vx = fianlVector1.x;
-              particle1.vy = fianlVector1.y;
-              particle2.vx = fianlVector2.x;
-              particle2.vy = fianlVector2.y;
+              particle1.vx = finalVector1.x;
+              particle1.vy = finalVector1.y;
+              particle2.vx = finalVector2.x;
+              particle2.vy = finalVector2.y;
+
             }
            
           }
