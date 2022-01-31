@@ -127,10 +127,31 @@ export default function Simulation() {
       >
         Reset
       </button>
-      {elapsed > 0 && (
-        <>
+      {particles && elapsed > 0 && (
+        <div className="stats">
+          <p>
+            Simulated Pressure:{" "}
+            {(
+              particles.reduce(
+                (momentumTransferred, particle) =>
+                  momentumTransferred + particle.momentumTransferred,
+                0
+              ) / elapsed
+            ).toFixed(5)}
+          </p>
           <p>Elapsed: {elapsed.toFixed(2)}s</p>
-        </>
+          <p>
+            Calculated Pressure:{" "}
+            {(
+              ((2 * numParticles) / 3) *
+              (particles.reduce(
+                (kineticEnergy, particle) => kineticEnergy + Particle.kineticEnergy(particle),
+                0
+              ) /
+                numParticles)
+            ).toFixed(5)}
+          </p>
+        </div>
       )}
     </div>
   );
