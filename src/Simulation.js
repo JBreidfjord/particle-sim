@@ -92,7 +92,8 @@ export default function Simulation() {
           return particle;
         });
       });
-      Particle.handleParticleCollisions(particles);
+      const pairs = Particle.generatePairs(particles);
+      Particle.handleParticleCollisions(pairs);
     };
 
     let interval;

@@ -21,69 +21,77 @@ export default class Particle {
     );
   }
 
-  static handleParticleCollisions(particles) {
-    particles.forEach((particle1, i) => {
+  static generatePairs(particles) {
+    // Iterate through particles creating an array of particle pairs
+    return particles.reduce((pairs, particle, i) => {
       particles.forEach((particle2, j) => {
         // Skip previous and same particles to avoid duplicate collision detection
-        if (j < i) {
-          // Set the differences in velocities and positions
-          const vxDiff = particle1.vx - particle2.vx;
-          const vyDiff = particle1.vy - particle2.vy;
-          const xDiff = particle2.x - particle1.x;
-          const yDiff = particle2.y - particle1.y;
-
-          // Calculate distance between particles
-          const distanceBetween = Math.hypot(xDiff, yDiff);
-
-          if (distanceBetween < particle1.r + particle2.r) {
-            // Set momentum and velocity calculations using the conservation of momentum
-
-            // Prevent overlap of particles
-            if (vxDiff * xDiff + vyDiff * yDiff >= 0) {
-              // Find angle between the particles at the point of collision
-              const angleBetween = -Math.atan2(yDiff, xDiff);
-
-              // Calculate the velocities along the plane of collision
-              const initialVelocity1 = {
-                x: particle1.vx * Math.cos(angleBetween) - particle1.vy * Math.sin(angleBetween),
-                y: particle1.vx * Math.sin(angleBetween) + particle1.vy * Math.cos(angleBetween),
-              };
-              const initialVelocity2 = {
-                x: particle2.vx * Math.cos(angleBetween) - particle2.vy * Math.sin(angleBetween),
-                y: particle2.vx * Math.sin(angleBetween) + particle2.vy * Math.cos(angleBetween),
-              };
-
-              // Use the 1D conservation of momentum (all (m1 - m2) goes to 0) to get the final velocity
-              const finalVelocity1 = { x: initialVelocity2.x, y: initialVelocity1.y };
-              const finalVelocity2 = { x: initialVelocity1.x, y: initialVelocity2.y };
-
-              // Reset the angle to the original axis
-              const finalVector1 = {
-                x:
-                  finalVelocity1.x * Math.cos(-angleBetween) -
-                  finalVelocity1.y * Math.sin(-angleBetween),
-                y:
-                  finalVelocity1.x * Math.sin(-angleBetween) +
-                  finalVelocity1.y * Math.cos(-angleBetween),
-              };
-              const finalVector2 = {
-                x:
-                  finalVelocity2.x * Math.cos(-angleBetween) -
-                  finalVelocity2.y * Math.sin(-angleBetween),
-                y:
-                  finalVelocity2.x * Math.sin(-angleBetween) +
-                  finalVelocity2.y * Math.cos(-angleBetween),
-              };
-
-              // Convert the vectors to the particle velocities
-              particle1.vx = finalVector1.x;
-              particle1.vy = finalVector1.y;
-              particle2.vx = finalVector2.x;
-              particle2.vy = finalVector2.y;
-            }
-          }
+        if (j > i) {
+          pairs.push([particle, particle2]);
         }
       });
+      return pairs;
+    }, []);
+  }
+
+  static handleParticleCollisions(particlePairs) {
+    particlePairs.forEach(([particle1, particle2]) => {
+      // Set the differences in velocities and positions
+      const vxDiff = particle1.vx - particle2.vx;
+      const vyDiff = particle1.vy - particle2.vy;
+      const xDiff = particle2.x - particle1.x;
+      const yDiff = particle2.y - particle1.y;
+
+      // Calculate distance between particles
+      const distanceBetween = Math.hypot(xDiff, yDiff);
+
+      if (distanceBetween < particle1.r + particle2.r) {
+        // Set momentum and velocity calculations using the conservation of momentum
+
+        // Prevent overlap of particles
+        if (vxDiff * xDiff + vyDiff * yDiff >= 0) {
+          // Find angle between the particles at the point of collision
+          const angleBetween = -Math.atan2(yDiff, xDiff);
+
+          // Calculate the velocities along the plane of collision
+          const initialVelocity1 = {
+            x: particle1.vx * Math.cos(angleBetween) - particle1.vy * Math.sin(angleBetween),
+            y: particle1.vx * Math.sin(angleBetween) + particle1.vy * Math.cos(angleBetween),
+          };
+          const initialVelocity2 = {
+            x: particle2.vx * Math.cos(angleBetween) - particle2.vy * Math.sin(angleBetween),
+            y: particle2.vx * Math.sin(angleBetween) + particle2.vy * Math.cos(angleBetween),
+          };
+
+          // Use the 1D conservation of momentum (all (m1 - m2) goes to 0) to get the final velocity
+          const finalVelocity1 = { x: initialVelocity2.x, y: initialVelocity1.y };
+          const finalVelocity2 = { x: initialVelocity1.x, y: initialVelocity2.y };
+
+          // Reset the angle to the original axis
+          const finalVector1 = {
+            x:
+              finalVelocity1.x * Math.cos(-angleBetween) -
+              finalVelocity1.y * Math.sin(-angleBetween),
+            y:
+              finalVelocity1.x * Math.sin(-angleBetween) +
+              finalVelocity1.y * Math.cos(-angleBetween),
+          };
+          const finalVector2 = {
+            x:
+              finalVelocity2.x * Math.cos(-angleBetween) -
+              finalVelocity2.y * Math.sin(-angleBetween),
+            y:
+              finalVelocity2.x * Math.sin(-angleBetween) +
+              finalVelocity2.y * Math.cos(-angleBetween),
+          };
+
+          // Convert the vectors to the particle velocities
+          particle1.vx = finalVector1.x;
+          particle1.vy = finalVector1.y;
+          particle2.vx = finalVector2.x;
+          particle2.vy = finalVector2.y;
+        }
+      }
     });
   }
 
