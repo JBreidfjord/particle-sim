@@ -22,13 +22,43 @@ export default class Particle {
   }
 
   static generatePairs(particles) {
-    // Iterate through particles creating an array of particle pairs
-    return particles.reduce((pairs, particle, i) => {
-      particles.forEach((particle2, j) => {
-        // Skip previous and same particles to avoid duplicate collision detection
-        if (j > i) {
-          pairs.push([particle, particle2]);
+    // Uniform Grid Partition
+    // Create a grid of particles
+    let grid = [];
+    const gridSize = Math.ceil(Math.sqrt(particles.length));
+    const gridWidth = 1.0 / gridSize;
+
+    // Check for particles within each grid cell
+    // If a particle is on the border between cells, it is added to both cells
+    particles.forEach((particle) => {
+      const minX = Math.floor((particle.x - particle.r) / gridWidth);
+      const maxX = Math.floor((particle.x + particle.r) / gridWidth);
+      const minY = Math.floor((particle.y - particle.r) / gridWidth);
+      const maxY = Math.floor((particle.y + particle.r) / gridWidth);
+
+      for (let i = minX; i <= maxX; i++) {
+        for (let j = minY; j <= maxY; j++) {
+          const gridIndex = i + j * gridSize;
+          // Check if array at index already exists
+          if (!grid[gridIndex]) {
+            grid[gridIndex] = [];
+          }
+          grid[gridIndex].push(particle);
         }
+      }
+    });
+
+    // Filter cells with less than 2 particles
+    grid = grid.filter((cell) => cell && cell.length > 1);
+
+    // Iterate through grid cells and create pairs
+    return grid.reduce((pairs, cell) => {
+      cell.forEach((particle1, i) => {
+        cell.forEach((particle2, j) => {
+          if (j > i) {
+            pairs.push([particle1, particle2]);
+          }
+        });
       });
       return pairs;
     }, []);
