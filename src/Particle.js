@@ -156,4 +156,8 @@ export default class Particle {
       this.y = 2 * ytc - this.y;
     }
   }
+
+  static kineticEnergy(particle) {
+    return 0.5 * particle.m * Math.hypot(particle.vx, particle.vy) ** 2;
+  }
 }
