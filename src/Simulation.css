@@ -9,3 +9,12 @@
   width: 600px;
   height: 600px;
 }
+
+.simulation .stats {
+  display: flex;
+  justify-content: center;
+}
+
+.simulation .stats p {
+  width: 20%;
+}
