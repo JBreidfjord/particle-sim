@@ -26,16 +26,23 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
   ctx.fill();
 };
 
-const numParticles = 10;
+const numParticles = 1000;
 export default function Simulation() {
+  const [isColorful, setIsColorful] = useState(false);
+  const [colorProbability, setColorProbability] = useState(0.5);
+  const [leftColor, setLeftColor] = useState("#39FF14");
+  const [rightColor, setRightColor] = useState("#8B1412");
   const [particles, setParticles] = useState(() => {
     let particles = [];
+    console.log(isColorful);
     for (let i = 0; i < numParticles; i++) {
-      particles.push(Particle.random());
+      particles.push(
+        isColorful ? Particle.random(colorProbability, leftColor, rightColor) : Particle.random()
+      );
     }
     return particles;
   });
-  const [running, setRunning] = useState(false);
+  const [running, setRunning] = useState(true);
   const canvasRef = useRef(null);
 
   // Handle canvas rendering
@@ -73,17 +80,18 @@ export default function Simulation() {
           particle.x * canvas.width,
           canvas.height - particle.y * canvas.height,
           particle.r * canvas.height,
-          "rgba(0, 0, 0, 0.5)"
+          particle.color
+          // "rgba(0,0,0,0.5)"
         );
       });
     };
 
     let requestId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(requestId);
-  }, [particles]);
+  }, [particles, leftColor, rightColor, colorProbability]);
 
   // Handle running simulation
-  const fps = 120;
+  const fps = 960;
   useEffect(() => {
     const step = () => {
       setParticles((prevParticles) => {
@@ -98,10 +106,24 @@ export default function Simulation() {
 
     let interval;
     if (running) {
-      interval = setInterval(step, 1000 / fps);
+      interval = setInterval(step, 1000 / (fps / 8));
     }
     return () => clearInterval(interval);
   }, [running, particles]);
+
+  const handleReset = (forceColor) => {
+    setParticles(() => {
+      let particles = [];
+      for (let i = 0; i < numParticles; i++) {
+        particles.push(
+          forceColor ?? isColorful
+            ? Particle.random(colorProbability, leftColor, rightColor)
+            : Particle.random()
+        );
+      }
+      return particles;
+    });
+  };
 
   return (
     <div className="simulation">
@@ -110,19 +132,48 @@ export default function Simulation() {
       <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
         {running ? "Stop" : "Start"}
       </button>
-      <button
-        onClick={() =>
-          setParticles(() => {
-            let particles = [];
-            for (let i = 0; i < numParticles; i++) {
-              particles.push(Particle.random());
-            }
-            return particles;
-          })
-        }
-      >
-        Reset
-      </button>
+      <button onClick={handleReset}>Reset</button>
+      <label>
+        <span> Color: </span>
+        <input
+          type="checkbox"
+          onChange={(e) => {
+            setIsColorful(e.target.checked);
+            handleReset(e.target.checked);
+          }}
+        />
+      </label>
+      {isColorful && (
+        <div className="color-picker">
+          <input
+            type="color"
+            value={leftColor}
+            onChange={(e) => {
+              setLeftColor(e.target.value);
+              handleReset(e.target.value ?? undefined);
+            }}
+          />
+          <input
+            type="color"
+            value={rightColor}
+            onChange={(e) => {
+              setRightColor(e.target.value);
+              handleReset(e.target.value ?? undefined);
+            }}
+          />
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={colorProbability}
+            onChange={(e) => {
+              setColorProbability(e.target.value);
+              handleReset(e.target.value ?? undefined);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 export default class Particle {
-  constructor(initialX, initialY, initialVx, initialVy, radius) {
+  constructor(initialX, initialY, initialVx, initialVy, radius, color = "rgba(0, 0, 0, 0.5)") {
     this.x = initialX;
     this.y = initialY;
     this.vx = initialVx;
@@ -7,17 +7,25 @@ export default class Particle {
     this.r = radius;
     this.ax = 0.0;
     this.ay = 0.0;
+    this.color = color;
   }
 
-  static random() {
-    const r = 0.04;
+  static random(colorProbability, leftColor, rightColor) {
+    const r = 0.015;
+    const color =
+      colorProbability && leftColor && rightColor
+        ? Math.random() < colorProbability
+          ? leftColor
+          : rightColor
+        : undefined;
 
     return new Particle(
       Math.max(Math.min(Math.random(), 1.0 - r * 1.5), r * 1.5),
       Math.max(Math.min(Math.random(), 1.0 - r * 1.5), r * 1.5),
       Math.random() - 0.5,
       Math.random() - 0.5,
-      r
+      r,
+      color
     );
   }
 
