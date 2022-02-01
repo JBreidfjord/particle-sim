@@ -26,7 +26,7 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
   ctx.fill();
 };
 
-const numParticles = 10;
+const numParticles = 1000;
 export default function Simulation() {
   const [particles, setParticles] = useState(() => {
     let particles = [];
@@ -73,7 +73,8 @@ export default function Simulation() {
           particle.x * canvas.width,
           canvas.height - particle.y * canvas.height,
           particle.r * canvas.height,
-          "rgba(0, 0, 0, 0.5)"
+          Math.random() < 0.3 ? "#39FF14" : "#8B1412"
+          // "rgba(0,0,0,0.5)"
         );
       });
     };
@@ -83,7 +84,7 @@ export default function Simulation() {
   }, [particles]);
 
   // Handle running simulation
-  const fps = 120;
+  const fps = 960;
   useEffect(() => {
     const step = () => {
       setParticles((prevParticles) => {
@@ -98,7 +99,7 @@ export default function Simulation() {
 
     let interval;
     if (running) {
-      interval = setInterval(step, 1000 / fps);
+      interval = setInterval(step, 1000 / (fps / 8));
     }
     return () => clearInterval(interval);
   }, [running, particles]);
