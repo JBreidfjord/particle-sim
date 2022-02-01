@@ -39,6 +39,7 @@ export default function Simulation() {
   const canvasRef = useRef(null);
   const [leftColor, setLeftColor] = useState("#39FF14");
   const [rightColor, setRightColor] = useState("#8B1412");
+  const [colorProbability, setColorProbability] = useState(0.5);
 
   // Handle canvas rendering
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function Simulation() {
           particle.x * canvas.width,
           canvas.height - particle.y * canvas.height,
           particle.r * canvas.height,
-          Math.random() < 0.3 ? leftColor : rightColor
+          Math.random() < colorProbability ? leftColor : rightColor
           // "rgba(0,0,0,0.5)"
         );
       });
@@ -83,7 +84,7 @@ export default function Simulation() {
 
     let requestId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(requestId);
-  }, [particles, leftColor, rightColor]);
+  }, [particles, leftColor, rightColor, colorProbability]);
 
   // Handle running simulation
   const fps = 960;
@@ -129,6 +130,14 @@ export default function Simulation() {
       <div className="color-picker">
         <input type="color" value={leftColor} onChange={(e) => setLeftColor(e.target.value)} />
         <input type="color" value={rightColor} onChange={(e) => setRightColor(e.target.value)} />
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={colorProbability}
+          onChange={(e) => setColorProbability(e.target.value)}
+        />
       </div>
     </div>
   );
