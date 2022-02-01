@@ -28,18 +28,22 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
 
 const numParticles = 1000;
 export default function Simulation() {
+  const [isColorful, setIsColorful] = useState(false);
+  const [colorProbability, setColorProbability] = useState(0.5);
+  const [leftColor, setLeftColor] = useState("#39FF14");
+  const [rightColor, setRightColor] = useState("#8B1412");
   const [particles, setParticles] = useState(() => {
     let particles = [];
+    console.log(isColorful);
     for (let i = 0; i < numParticles; i++) {
-      particles.push(Particle.random());
+      particles.push(
+        isColorful ? Particle.random(colorProbability, leftColor, rightColor) : Particle.random()
+      );
     }
     return particles;
   });
-  const [running, setRunning] = useState(false);
+  const [running, setRunning] = useState(true);
   const canvasRef = useRef(null);
-  const [leftColor, setLeftColor] = useState("#39FF14");
-  const [rightColor, setRightColor] = useState("#8B1412");
-  const [colorProbability, setColorProbability] = useState(0.5);
 
   // Handle canvas rendering
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function Simulation() {
           particle.x * canvas.width,
           canvas.height - particle.y * canvas.height,
           particle.r * canvas.height,
-          Math.random() < colorProbability ? leftColor : rightColor
+          particle.color
           // "rgba(0,0,0,0.5)"
         );
       });
@@ -107,6 +111,20 @@ export default function Simulation() {
     return () => clearInterval(interval);
   }, [running, particles]);
 
+  const handleReset = (forceColor) => {
+    setParticles(() => {
+      let particles = [];
+      for (let i = 0; i < numParticles; i++) {
+        particles.push(
+          forceColor ?? isColorful
+            ? Particle.random(colorProbability, leftColor, rightColor)
+            : Particle.random()
+        );
+      }
+      return particles;
+    });
+  };
+
   return (
     <div className="simulation">
       <h2>Particle Sim</h2>
@@ -114,31 +132,48 @@ export default function Simulation() {
       <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
         {running ? "Stop" : "Start"}
       </button>
-      <button
-        onClick={() =>
-          setParticles(() => {
-            let particles = [];
-            for (let i = 0; i < numParticles; i++) {
-              particles.push(Particle.random());
-            }
-            return particles;
-          })
-        }
-      >
-        Reset
-      </button>
-      <div className="color-picker">
-        <input type="color" value={leftColor} onChange={(e) => setLeftColor(e.target.value)} />
-        <input type="color" value={rightColor} onChange={(e) => setRightColor(e.target.value)} />
+      <button onClick={handleReset}>Reset</button>
+      <label>
+        <span> Color: </span>
         <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          value={colorProbability}
-          onChange={(e) => setColorProbability(e.target.value)}
+          type="checkbox"
+          onChange={(e) => {
+            setIsColorful(e.target.checked);
+            handleReset(e.target.checked);
+          }}
         />
-      </div>
+      </label>
+      {isColorful && (
+        <div className="color-picker">
+          <input
+            type="color"
+            value={leftColor}
+            onChange={(e) => {
+              setLeftColor(e.target.value);
+              handleReset(e.target.value ?? undefined);
+            }}
+          />
+          <input
+            type="color"
+            value={rightColor}
+            onChange={(e) => {
+              setRightColor(e.target.value);
+              handleReset(e.target.value ?? undefined);
+            }}
+          />
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={colorProbability}
+            onChange={(e) => {
+              setColorProbability(e.target.value);
+              handleReset(e.target.value ?? undefined);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
