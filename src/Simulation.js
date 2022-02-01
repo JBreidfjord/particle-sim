@@ -37,6 +37,8 @@ export default function Simulation() {
   });
   const [running, setRunning] = useState(false);
   const canvasRef = useRef(null);
+  const [leftColor, setLeftColor] = useState("#39FF14");
+  const [rightColor, setRightColor] = useState("#8B1412");
 
   // Handle canvas rendering
   useEffect(() => {
@@ -73,7 +75,7 @@ export default function Simulation() {
           particle.x * canvas.width,
           canvas.height - particle.y * canvas.height,
           particle.r * canvas.height,
-          Math.random() < 0.3 ? "#39FF14" : "#8B1412"
+          Math.random() < 0.3 ? leftColor : rightColor
           // "rgba(0,0,0,0.5)"
         );
       });
@@ -81,7 +83,7 @@ export default function Simulation() {
 
     let requestId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(requestId);
-  }, [particles]);
+  }, [particles, leftColor, rightColor]);
 
   // Handle running simulation
   const fps = 960;
@@ -124,6 +126,10 @@ export default function Simulation() {
       >
         Reset
       </button>
+      <div className="color-picker">
+        <input type="color" value={leftColor} onChange={(e) => setLeftColor(e.target.value)} />
+        <input type="color" value={rightColor} onChange={(e) => setRightColor(e.target.value)} />
+      </div>
     </div>
   );
 }
