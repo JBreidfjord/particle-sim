@@ -26,7 +26,7 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
   ctx.fill();
 };
 
-const numParticles = 10;
+const numParticles = 1;
 export default function Simulation() {
   const [radius, setRadius] = useState(1);
   const [particles, setParticles] = useState(() => {
@@ -104,7 +104,6 @@ export default function Simulation() {
     return () => clearInterval(interval);
   }, [running, particles]);
 
-
   return (
     <div className="simulation">
       <h2>Particle Sim</h2>
@@ -125,15 +124,15 @@ export default function Simulation() {
       >
         Reset
       </button>
-      
+
       <p>Particle Radius:</p>
       <input
         type="range"
-        onChange={radius => setRadius(radius.target.value)}
+        onChange={(radius) => setRadius(parseFloat(radius.target.value))}
         value={radius}
         min="0.005"
         max="0.06"
-        step='0.005'
+        step="0.005"
       />
     </div>
   );
