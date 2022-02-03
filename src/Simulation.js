@@ -28,10 +28,11 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
 
 const numParticles = 10;
 export default function Simulation() {
+  const [radius, setRadius] = useState(1);
   const [particles, setParticles] = useState(() => {
     let particles = [];
     for (let i = 0; i < numParticles; i++) {
-      particles.push(Particle.random());
+      particles.push(Particle.random(radius));
     }
     return particles;
   });
@@ -103,6 +104,7 @@ export default function Simulation() {
     return () => clearInterval(interval);
   }, [running, particles]);
 
+
   return (
     <div className="simulation">
       <h2>Particle Sim</h2>
@@ -115,7 +117,7 @@ export default function Simulation() {
           setParticles(() => {
             let particles = [];
             for (let i = 0; i < numParticles; i++) {
-              particles.push(Particle.random());
+              particles.push(Particle.random(radius));
             }
             return particles;
           })
@@ -123,6 +125,16 @@ export default function Simulation() {
       >
         Reset
       </button>
+      
+      <p>Particle Radius:</p>
+      <input
+        type="range"
+        onChange={radius => setRadius(radius.target.value)}
+        value={radius}
+        min="0.005"
+        max="0.06"
+        step='0.005'
+      />
     </div>
   );
 }

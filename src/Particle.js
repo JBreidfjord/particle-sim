@@ -9,8 +9,8 @@ export default class Particle {
     this.ay = 0.0;
   }
 
-  static random() {
-    const r = 0.04;
+  static random(radius) {
+    const r = radius;
 
     return new Particle(
       Math.max(Math.min(Math.random(), 1.0 - r * 1.5), r * 1.5),
