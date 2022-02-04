@@ -26,9 +26,11 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
   ctx.fill();
 };
 
-const numParticles = 1;
+
 export default function Simulation() {
-  const [radius, setRadius] = useState(1);
+  const [numParticles, setNumParticles] = useState(10); 
+  const [radius, setRadius] = useState(0.04);
+  const [speedMult, setSpeedMult] = useState(1);
   const [particles, setParticles] = useState(() => {
     let particles = [];
     for (let i = 0; i < numParticles; i++) {
@@ -99,10 +101,10 @@ export default function Simulation() {
 
     let interval;
     if (running) {
-      interval = setInterval(step, 1000 / fps);
+      interval = setInterval(step, 1000 / (fps * speedMult));
     }
     return () => clearInterval(interval);
-  }, [running, particles]);
+  }, [running, particles, speedMult]);
 
   return (
     <div className="simulation">
@@ -124,14 +126,30 @@ export default function Simulation() {
       >
         Reset
       </button>
-
+      <p>Number of Particles</p>
+      <input
+        type='number'
+        onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
+        value={numParticles}
+        min='1'
+        step='1'
+        />
+      <p>Speed Multiplier</p>
+      <input
+        type='number'
+        onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
+        value={speedMult}
+        min='0.1'
+        max='10'
+        step='0.1'
+      />
       <p>Particle Radius:</p>
       <input
         type="range"
         onChange={(radius) => setRadius(parseFloat(radius.target.value))}
         value={radius}
         min="0.005"
-        max="0.06"
+        max="0.1"
         step="0.005"
       />
     </div>
