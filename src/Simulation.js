@@ -36,6 +36,7 @@ export default function Simulation() {
     return particles;
   });
   const [running, setRunning] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const canvasRef = useRef(null);
 
   // Handle canvas rendering
@@ -84,6 +85,7 @@ export default function Simulation() {
 
   // Handle running simulation
   const fps = 120;
+  const speedMult = 1;
   useEffect(() => {
     const step = () => {
       setParticles((prevParticles) => {
@@ -94,11 +96,12 @@ export default function Simulation() {
       });
       const pairs = Particle.generatePairs(particles);
       Particle.handleParticleCollisions(pairs);
+      setElapsed((prevElapsed) => prevElapsed + 1 / fps);
     };
 
     let interval;
     if (running) {
-      interval = setInterval(step, 1000 / fps);
+      interval = setInterval(step, 1000 / (fps * speedMult));
     }
     return () => clearInterval(interval);
   }, [running, particles]);
@@ -111,18 +114,49 @@ export default function Simulation() {
         {running ? "Stop" : "Start"}
       </button>
       <button
-        onClick={() =>
+        onClick={() => {
           setParticles(() => {
             let particles = [];
             for (let i = 0; i < numParticles; i++) {
               particles.push(Particle.random());
             }
             return particles;
-          })
-        }
+          });
+          setElapsed(0);
+        }}
       >
         Reset
       </button>
+      {particles && elapsed > 0 && (
+        <div className="stats">
+          <p>
+            {/* P = F / A, F = Δp / Δt */}
+            {/* A = 1 when container wall length = 1 */}
+            Simulated Pressure:{" "}
+            {(
+              particles.reduce(
+                (momentumTransferred, particle) =>
+                  momentumTransferred + particle.momentumTransferred,
+                0
+              ) / elapsed
+            ).toFixed(5)}
+          </p>
+          <p>Elapsed: {elapsed.toFixed(2)}s</p>
+          <p>
+            {/* P = (2N / 3V)(KEavg), where N is the number of particles */}
+            {/* V = 1 when container wall length = 1 */}
+            Calculated Pressure:{" "}
+            {(
+              ((2 * numParticles) / 3) *
+              (particles.reduce(
+                (kineticEnergy, particle) => kineticEnergy + Particle.kineticEnergy(particle),
+                0
+              ) /
+                numParticles)
+            ).toFixed(5)}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

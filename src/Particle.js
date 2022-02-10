@@ -7,6 +7,8 @@ export default class Particle {
     this.r = radius;
     this.ax = 0.0;
     this.ay = 0.0;
+    this.m = 1.0;
+    this.momentumTransferred = 0;
   }
 
   static random() {
@@ -148,6 +150,10 @@ export default class Particle {
     // Bottom | y - r | 0.0
     // Top | y + r | 1.0
     if (this.x - this.r <= 0.0 || this.x + this.r >= 1.0) {
+      // Track momentum transfer
+      // Δp = 2mv⊥
+      this.momentumTransferred += 2 * this.m * Math.abs(this.vx);
+
       // Flip horizontal velocity
       this.vx = -this.vx;
 
@@ -162,6 +168,10 @@ export default class Particle {
       this.x = 2 * xtc - this.x;
     }
     if (this.y - this.r <= 0.0 || this.y + this.r >= 1.0) {
+      // Track momentum transfer
+      // Δp = 2mv⊥
+      this.momentumTransferred += 2 * this.m * Math.abs(this.vy);
+
       // Flip vertical velocity
       this.vy = -this.vy;
 
@@ -175,5 +185,9 @@ export default class Particle {
       // y = y(tc) - dy = y(tc) - (y(1) - y(tc)) = 2y(tc) - y(1)
       this.y = 2 * ytc - this.y;
     }
+  }
+
+  static kineticEnergy(particle) {
+    return 0.5 * particle.m * Math.hypot(particle.vx, particle.vy) ** 2;
   }
 }
