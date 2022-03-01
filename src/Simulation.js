@@ -26,12 +26,14 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
   ctx.fill();
 };
 
-const numParticles = 10;
 export default function Simulation() {
+  const [numParticles, setNumParticles] = useState(10);
+  const [radius, setRadius] = useState(0.04);
+  const [speedMult, setSpeedMult] = useState(1);
   const [particles, setParticles] = useState(() => {
     let particles = [];
     for (let i = 0; i < numParticles; i++) {
-      particles.push(Particle.random());
+      particles.push(Particle.random(radius));
     }
     return particles;
   });
@@ -85,7 +87,6 @@ export default function Simulation() {
 
   // Handle running simulation
   const fps = 120;
-  const speedMult = 1;
   useEffect(() => {
     const step = () => {
       setParticles((prevParticles) => {
@@ -104,59 +105,96 @@ export default function Simulation() {
       interval = setInterval(step, 1000 / (fps * speedMult));
     }
     return () => clearInterval(interval);
-  }, [running, particles]);
+  }, [running, particles, speedMult]);
 
   return (
-    <div className="simulation">
+    <div className="container">
       <h2>Particle Sim</h2>
-      <canvas ref={canvasRef}></canvas>
-      <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
-        {running ? "Stop" : "Start"}
-      </button>
-      <button
-        onClick={() => {
-          setParticles(() => {
-            let particles = [];
-            for (let i = 0; i < numParticles; i++) {
-              particles.push(Particle.random());
+      <div className="simulation">
+        <div className="controls">
+          <label>
+            Number of Particles
+            <input
+              type="number"
+              onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
+              value={numParticles}
+              min="1"
+              step="1"
+            />
+          </label>
+          <label>
+            Speed Multiplier
+            <input
+              type="range"
+              onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
+              value={speedMult}
+              min="0.1"
+              max="10"
+              step="0.1"
+            />
+          </label>
+          <label>
+            Particle Radius
+            <input
+              type="range"
+              onChange={(radius) => setRadius(parseFloat(radius.target.value))}
+              value={radius}
+              min="0.002"
+              max="0.1"
+              step="0.00002"
+            />
+          </label>
+          <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
+            {running ? "Stop" : "Start"}
+          </button>
+          <button
+            onClick={() =>
+              setParticles(() => {
+                let particles = [];
+                for (let i = 0; i < numParticles; i++) {
+                  particles.push(Particle.random(radius));
+                }
+                return particles;
+              })
             }
-            return particles;
-          });
-          setElapsed(0);
-        }}
-      >
-        Reset
-      </button>
-      {particles && elapsed > 0 && (
-        <div className="stats">
-          <p>
-            {/* P = F / A, F = Δp / Δt */}
-            {/* A = 1 when container wall length = 1 */}
-            Simulated Pressure:{" "}
-            {(
-              particles.reduce(
-                (momentumTransferred, particle) =>
-                  momentumTransferred + particle.momentumTransferred,
-                0
-              ) / elapsed
-            ).toFixed(5)}
-          </p>
-          <p>Elapsed: {elapsed.toFixed(2)}s</p>
-          <p>
-            {/* P = (2N / 3V)(KEavg), where N is the number of particles */}
-            {/* V = 1 when container wall length = 1 */}
-            Calculated Pressure:{" "}
-            {(
-              ((2 * numParticles) / 3) *
-              (particles.reduce(
-                (kineticEnergy, particle) => kineticEnergy + Particle.kineticEnergy(particle),
-                0
-              ) /
-                numParticles)
-            ).toFixed(5)}
-          </p>
+          >
+            Reset
+          </button>
         </div>
-      )}
+        <canvas ref={canvasRef}></canvas>
+        <div className="stats">
+          {particles && elapsed > 0 && (
+            <>
+              <p>
+                {/* P = F / A, F = Δp / Δt */}
+                {/* A = 1 when container wall length = 1 */}
+                Simulated Pressure:{" "}
+                {(
+                  particles.reduce(
+                    (momentumTransferred, particle) =>
+                      momentumTransferred + particle.momentumTransferred,
+                    0
+                  ) / elapsed
+                ).toFixed(5)}
+              </p>
+              <p>Elapsed: {elapsed.toFixed(2)}s</p>
+              <p>
+                {/* P = (2N / 3V)(KEavg), where N is the number of particles */}
+                {/* V = 1 when container wall length = 1 */}
+                Calculated Pressure:{" "}
+                {(
+                  ((2 * numParticles) / 3) *
+                  (particles.reduce(
+                    (kineticEnergy, particle) => kineticEnergy + Particle.kineticEnergy(particle),
+                    0
+                  ) /
+                    numParticles)
+                ).toFixed(5)}
+              </p>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

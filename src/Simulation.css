@@ -1,20 +1,38 @@
-.simulation {
-  padding: 10px;
+.container {
   text-align: center;
 }
 
+.simulation {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 .simulation canvas {
-  display: block;
   margin: 0 auto;
   width: 600px;
   height: 600px;
 }
 
-.simulation .stats {
+.controls {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  margin: 0 auto;
 }
 
-.simulation .stats p {
-  width: 20%;
+.controls input {
+  margin-bottom: 1.5em;
+}
+
+.controls button {
+  margin-bottom: 0.5em;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }
