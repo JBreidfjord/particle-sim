@@ -3,6 +3,8 @@ import "./Simulation.css";
 import { useEffect, useRef, useState } from "react";
 
 import Particle from "./Particle";
+import Controls from "./Controls";
+import Stats from "./Stats";
 
 const getPixelRatio = (ctx) => {
   let backingStore =
@@ -111,89 +113,19 @@ export default function Simulation() {
     <div className="container">
       <h2>Particle Sim</h2>
       <div className="simulation">
-        <div className="controls">
-          <label>
-            Number of Particles
-            <input
-              type="number"
-              onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
-              value={numParticles}
-              min="1"
-              step="1"
-            />
-          </label>
-          <label>
-            Speed Multiplier
-            <input
-              type="range"
-              onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
-              value={speedMult}
-              min="0.1"
-              max="10"
-              step="0.1"
-            />
-          </label>
-          <label>
-            Particle Radius
-            <input
-              type="range"
-              onChange={(radius) => setRadius(parseFloat(radius.target.value))}
-              value={radius}
-              min="0.002"
-              max="0.1"
-              step="0.00002"
-            />
-          </label>
-          <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
-            {running ? "Stop" : "Start"}
-          </button>
-          <button
-            onClick={() =>
-              setParticles(() => {
-                let particles = [];
-                for (let i = 0; i < numParticles; i++) {
-                  particles.push(Particle.random(radius));
-                }
-                return particles;
-              })
-            }
-          >
-            Reset
-          </button>
-        </div>
+        <Controls
+          numParticles={numParticles}
+          setNumParticles={setNumParticles}
+          radius={radius}
+          setRadius={setRadius}
+          speedMult={speedMult}
+          setSpeedMult={setSpeedMult}
+          running={running}
+          setRunning={setRunning}
+          setParticles={setParticles}
+        />
         <canvas ref={canvasRef}></canvas>
-        <div className="stats">
-          {particles && elapsed > 0 && (
-            <>
-              <p>
-                {/* P = F / A, F = Δp / Δt */}
-                {/* A = 1 when container wall length = 1 */}
-                Simulated Pressure:{" "}
-                {(
-                  particles.reduce(
-                    (momentumTransferred, particle) =>
-                      momentumTransferred + particle.momentumTransferred,
-                    0
-                  ) / elapsed
-                ).toFixed(5)}
-              </p>
-              <p>Elapsed: {elapsed.toFixed(2)}s</p>
-              <p>
-                {/* P = (2N / 3V)(KEavg), where N is the number of particles */}
-                {/* V = 1 when container wall length = 1 */}
-                Calculated Pressure:{" "}
-                {(
-                  ((2 * numParticles) / 3) *
-                  (particles.reduce(
-                    (kineticEnergy, particle) => kineticEnergy + Particle.kineticEnergy(particle),
-                    0
-                  ) /
-                    numParticles)
-                ).toFixed(5)}
-              </p>
-            </>
-          )}
-        </div>
+        <Stats particles={particles} elapsed={elapsed} numParticles={numParticles} />
       </div>
     </div>
   );
