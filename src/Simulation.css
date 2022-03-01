@@ -1,11 +1,30 @@
-.simulation {
-  padding: 10px;
+.container {
   text-align: center;
 }
 
+.simulation {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+}
+
 .simulation canvas {
-  display: block;
   margin: 0 auto;
   width: 600px;
   height: 600px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }

@@ -106,51 +106,56 @@ export default function Simulation() {
   }, [running, particles, speedMult]);
 
   return (
-    <div className="simulation">
+    <div className="container">
       <h2>Particle Sim</h2>
-      <canvas ref={canvasRef}></canvas>
-      <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
-        {running ? "Stop" : "Start"}
-      </button>
-      <button
-        onClick={() =>
-          setParticles(() => {
-            let particles = [];
-            for (let i = 0; i < numParticles; i++) {
-              particles.push(Particle.random(radius));
+      <div className="simulation">
+        <div className="controls">
+          <p>Number of Particles</p>
+          <input
+            type="number"
+            onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
+            value={numParticles}
+            min="1"
+            step="1"
+          />
+          <p>Speed Multiplier</p>
+          <input
+            type="range"
+            onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
+            value={speedMult}
+            min="0.1"
+            max="10"
+            step="0.1"
+          />
+          <p>Particle Radius:</p>
+          <input
+            type="range"
+            onChange={(radius) => setRadius(parseFloat(radius.target.value))}
+            value={radius}
+            min="0.002"
+            max="0.1"
+            step="0.00002"
+          />
+          <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
+            {running ? "Stop" : "Start"}
+          </button>
+          <button
+            onClick={() =>
+              setParticles(() => {
+                let particles = [];
+                for (let i = 0; i < numParticles; i++) {
+                  particles.push(Particle.random(radius));
+                }
+                return particles;
+              })
             }
-            return particles;
-          })
-        }
-      >
-        Reset
-      </button>
-      <p>Number of Particles</p>
-      <input
-        type="number"
-        onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
-        value={numParticles}
-        min="1"
-        step="1"
-      />
-      <p>Speed Multiplier</p>
-      <input
-        type="range"
-        onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
-        value={speedMult}
-        min="0.1"
-        max="10"
-        step="0.1"
-      />
-      <p>Particle Radius:</p>
-      <input
-        type="range"
-        onChange={(radius) => setRadius(parseFloat(radius.target.value))}
-        value={radius}
-        min="0.002"
-        max="0.1"
-        step="0.00002"
-      />
+          >
+            Reset
+          </button>
+        </div>
+        <canvas ref={canvasRef}></canvas>
+        <div className="stats"></div>
+      </div>
     </div>
   );
 }
