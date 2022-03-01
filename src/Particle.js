@@ -11,6 +11,14 @@ export default class Particle {
     this.momentumTransferred = 0;
   }
 
+  static generateParticles(numParticles, radius) {
+    const particles = [];
+    for (let i = 0; i < numParticles; i++) {
+      particles.push(Particle.random(radius));
+    }
+    return particles;
+  }
+
   static random(radius) {
     return new Particle(
       Math.max(Math.min(Math.random(), 1.0 - radius * 1.5), radius * 1.5),

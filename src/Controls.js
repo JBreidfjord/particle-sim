@@ -10,6 +10,8 @@ export default function Controls({
   running,
   setRunning,
   setParticles,
+  temperature,
+  setTemperature,
 }) {
   return (
     <div className="controls">
@@ -21,6 +23,17 @@ export default function Controls({
           value={numParticles}
           min="1"
           step="1"
+        />
+      </label>
+      <label>
+        Temperature
+        <input
+          type="number"
+          onChange={(temperature) => setTemperature(parseFloat(temperature.target.value))}
+          value={temperature}
+          min="0"
+          step="1"
+          max="10000"
         />
       </label>
       <label>
@@ -48,17 +61,7 @@ export default function Controls({
       <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
         {running ? "Stop" : "Start"}
       </button>
-      <button
-        onClick={() =>
-          setParticles(() => {
-            let particles = [];
-            for (let i = 0; i < numParticles; i++) {
-              particles.push(Particle.random(radius));
-            }
-            return particles;
-          })
-        }
-      >
+      <button onClick={() => setParticles(() => Particle.generateParticles(numParticles, radius))}>
         Reset
       </button>
     </div>
