@@ -26,9 +26,8 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
   ctx.fill();
 };
 
-
 export default function Simulation() {
-  const [numParticles, setNumParticles] = useState(10); 
+  const [numParticles, setNumParticles] = useState(10);
   const [radius, setRadius] = useState(0.04);
   const [speedMult, setSpeedMult] = useState(1);
   const [particles, setParticles] = useState(() => {
@@ -128,29 +127,29 @@ export default function Simulation() {
       </button>
       <p>Number of Particles</p>
       <input
-        type='number'
+        type="number"
         onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
         value={numParticles}
-        min='1'
-        step='1'
-        />
+        min="1"
+        step="1"
+      />
       <p>Speed Multiplier</p>
       <input
-        type='number'
+        type="range"
         onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
         value={speedMult}
-        min='0.1'
-        max='10'
-        step='0.1'
+        min="0.1"
+        max="10"
+        step="0.1"
       />
       <p>Particle Radius:</p>
       <input
         type="range"
         onChange={(radius) => setRadius(parseFloat(radius.target.value))}
         value={radius}
-        min="0.005"
+        min="0.002"
         max="0.1"
-        step="0.005"
+        step="0.00002"
       />
     </div>
   );
