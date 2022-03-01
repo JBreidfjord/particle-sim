@@ -110,32 +110,38 @@ export default function Simulation() {
       <h2>Particle Sim</h2>
       <div className="simulation">
         <div className="controls">
-          <p>Number of Particles</p>
-          <input
-            type="number"
-            onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
-            value={numParticles}
-            min="1"
-            step="1"
-          />
-          <p>Speed Multiplier</p>
-          <input
-            type="range"
-            onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
-            value={speedMult}
-            min="0.1"
-            max="10"
-            step="0.1"
-          />
-          <p>Particle Radius:</p>
-          <input
-            type="range"
-            onChange={(radius) => setRadius(parseFloat(radius.target.value))}
-            value={radius}
-            min="0.002"
-            max="0.1"
-            step="0.00002"
-          />
+          <label>
+            Number of Particles
+            <input
+              type="number"
+              onChange={(numParticles) => setNumParticles(parseFloat(numParticles.target.value))}
+              value={numParticles}
+              min="1"
+              step="1"
+            />
+          </label>
+          <label>
+            Speed Multiplier
+            <input
+              type="range"
+              onChange={(speedMult) => setSpeedMult(parseFloat(speedMult.target.value))}
+              value={speedMult}
+              min="0.1"
+              max="10"
+              step="0.1"
+            />
+          </label>
+          <label>
+            Particle Radius
+            <input
+              type="range"
+              onChange={(radius) => setRadius(parseFloat(radius.target.value))}
+              value={radius}
+              min="0.002"
+              max="0.1"
+              step="0.00002"
+            />
+          </label>
           <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
             {running ? "Stop" : "Start"}
           </button>

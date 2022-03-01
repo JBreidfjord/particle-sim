@@ -26,6 +26,10 @@ h6 {
   color: var(--heading-color);
 }
 
+label {
+  width: 80%;
+}
+
 button {
   background-color: #fafbfc;
   border: 1px solid rgba(27, 31, 35, 0.15);
@@ -38,7 +42,7 @@ button {
   font-size: 14px;
   padding: 6px 16px;
   user-select: none;
-  margin-top: 1em;
+  width: 80%;
 }
 
 input[type="number"] {

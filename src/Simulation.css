@@ -21,6 +21,14 @@
   margin: 0 auto;
 }
 
+.controls input {
+  margin-bottom: 1.5em;
+}
+
+.controls button {
+  margin-bottom: 0.5em;
+}
+
 .stats {
   display: flex;
   flex-direction: column;
