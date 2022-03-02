@@ -37,6 +37,7 @@ export default function Simulation() {
   );
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [collisionsEnabled, setCollisionsEnabled] = useState(true);
   const canvasRef = useRef(null);
 
   // Handle canvas rendering
@@ -93,8 +94,10 @@ export default function Simulation() {
           return particle;
         });
       });
-      const pairs = Particle.generatePairs(particles);
-      Particle.handleParticleCollisions(pairs);
+      if (collisionsEnabled) {
+        const pairs = Particle.generatePairs(particles);
+        Particle.handleParticleCollisions(pairs);
+      }
       setElapsed((prevElapsed) => prevElapsed + 1 / fps);
     };
 
@@ -103,7 +106,7 @@ export default function Simulation() {
       interval = setInterval(step, 1000 / (fps * speedMult));
     }
     return () => clearInterval(interval);
-  }, [running, particles, speedMult]);
+  }, [running, particles, speedMult, collisionsEnabled]);
 
   return (
     <div className="container">
@@ -120,9 +123,11 @@ export default function Simulation() {
           setRunning={setRunning}
           setParticles={setParticles}
           setElapsed={setElapsed}
+          collisionsEnabled={collisionsEnabled}
+          setCollisionsEnabled={setCollisionsEnabled}
         />
         <canvas ref={canvasRef}></canvas>
-        <Stats particles={particles} elapsed={elapsed} numParticles={numParticles} />
+        <Stats particles={particles} elapsed={elapsed} />
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ export default function Controls({
   setRunning,
   setParticles,
   setElapsed,
+  collisionsEnabled,
+  setCollisionsEnabled,
 }) {
   return (
     <div className="controls">
@@ -44,6 +46,14 @@ export default function Controls({
           min="0.002"
           max="0.1"
           step="0.00002"
+        />
+      </label>
+      <label>
+        Collisions
+        <input
+          type="checkbox"
+          checked={collisionsEnabled}
+          onChange={(collisionsEnabled) => setCollisionsEnabled(collisionsEnabled.target.checked)}
         />
       </label>
       <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
