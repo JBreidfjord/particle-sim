@@ -30,7 +30,6 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
 
 export default function Simulation() {
   const [numParticles, setNumParticles] = useState(10);
-  const [temperature, setTemperature] = useState(273);
   const [radius, setRadius] = useState(0.04);
   const [speedMult, setSpeedMult] = useState(1);
   const [particles, setParticles] = useState(() =>
@@ -120,8 +119,7 @@ export default function Simulation() {
           running={running}
           setRunning={setRunning}
           setParticles={setParticles}
-          temperature={temperature}
-          setTemperature={setTemperature}
+          setElapsed={setElapsed}
         />
         <canvas ref={canvasRef}></canvas>
         <Stats particles={particles} elapsed={elapsed} numParticles={numParticles} />
