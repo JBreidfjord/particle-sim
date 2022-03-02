@@ -23,15 +23,7 @@ export default function Stats({ particles, elapsed, numParticles }) {
           <p>
             {/* P = (NkT)/A, where N is the number of particles and k is the Boltzmann constant */}
             {/* A = 1 when container wall length = 1 */}
-            Calculated Pressure:{" "}
-            {(
-              ((2 * numParticles) / 3) *
-              (particles.reduce(
-                (kineticEnergy, particle) => kineticEnergy + Particle.kineticEnergy(particle),
-                0
-              ) /
-                numParticles)
-            ).toFixed(5)}
+            Calculated Pressure: {(numParticles * k * Particle.temperature(particles)).toFixed(5)}
           </p>
         </>
       )}
