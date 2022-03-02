@@ -206,4 +206,12 @@ export default class Particle {
       particles.length;
     return (2 / 3) * (1 / k) * KE;
   }
+
+  static area(particles) {
+    return particles.reduce((acc, particle) => acc + particle.r ** 2 * Math.PI, 0);
+  }
+
+  static momentumTransferred(particles) {
+    return particles.reduce((acc, particle) => acc + particle.momentumTransferred, 0);
+  }
 }

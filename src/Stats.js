@@ -10,14 +10,7 @@ export default function Stats({ particles, elapsed, numParticles }) {
           <p>
             {/* P = F / A, F = Δp / Δt */}
             {/* A = 1 when container wall length = 1 */}
-            Simulated Pressure:{" "}
-            {(
-              particles.reduce(
-                (momentumTransferred, particle) =>
-                  momentumTransferred + particle.momentumTransferred,
-                0
-              ) / elapsed
-            ).toFixed(5)}
+            Simulated Pressure: {(Particle.momentumTransferred(particles) / elapsed).toFixed(5)}
           </p>
           <p>Elapsed: {elapsed.toFixed(2)}s</p>
           <p>
