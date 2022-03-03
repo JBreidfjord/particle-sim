@@ -7,8 +7,16 @@ export default class Particle {
     this.r = radius;
     this.ax = 0.0;
     this.ay = 0.0;
-    this.m = 1.0;
+    this.m = Math.PI * radius ** 2; // Mass proportional to area of particle
     this.momentumTransferred = 0;
+  }
+
+  static generateParticles(numParticles, radius) {
+    const particles = [];
+    for (let i = 0; i < numParticles; i++) {
+      particles.push(Particle.random(radius));
+    }
+    return particles;
   }
 
   static random(radius) {
@@ -187,5 +195,17 @@ export default class Particle {
 
   static kineticEnergy(particle) {
     return 0.5 * particle.m * Math.hypot(particle.vx, particle.vy) ** 2;
+  }
+
+  static totalKineticEnergy(particles) {
+    return particles.reduce((energy, particle) => energy + Particle.kineticEnergy(particle), 0);
+  }
+
+  static area(particles) {
+    return particles.reduce((acc, particle) => acc + particle.r ** 2 * Math.PI, 0);
+  }
+
+  static momentumTransferred(particles) {
+    return particles.reduce((acc, particle) => acc + particle.momentumTransferred, 0);
   }
 }

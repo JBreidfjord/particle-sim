@@ -32,15 +32,12 @@ export default function Simulation() {
   const [numParticles, setNumParticles] = useState(10);
   const [radius, setRadius] = useState(0.04);
   const [speedMult, setSpeedMult] = useState(1);
-  const [particles, setParticles] = useState(() => {
-    let particles = [];
-    for (let i = 0; i < numParticles; i++) {
-      particles.push(Particle.random(radius));
-    }
-    return particles;
-  });
+  const [particles, setParticles] = useState(() =>
+    Particle.generateParticles(numParticles, radius)
+  );
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [collisionsEnabled, setCollisionsEnabled] = useState(true);
   const canvasRef = useRef(null);
 
   // Handle canvas rendering
@@ -73,12 +70,12 @@ export default function Simulation() {
       ctx.rect(0, 0, canvas.width, canvas.height);
       ctx.stroke();
 
-      particles.forEach((particle) => {
+      particles.forEach((particle, i) => {
         ctx.drawCircle(
           particle.x * canvas.width,
           canvas.height - particle.y * canvas.height,
           particle.r * canvas.height,
-          "rgba(0, 0, 0, 0.5)"
+          i === 0 ? "red" : "rgba(0, 0, 0, 0.5)"
         );
       });
     };
@@ -97,8 +94,10 @@ export default function Simulation() {
           return particle;
         });
       });
-      const pairs = Particle.generatePairs(particles);
-      Particle.handleParticleCollisions(pairs);
+      if (collisionsEnabled) {
+        const pairs = Particle.generatePairs(particles);
+        Particle.handleParticleCollisions(pairs);
+      }
       setElapsed((prevElapsed) => prevElapsed + 1 / fps);
     };
 
@@ -107,7 +106,7 @@ export default function Simulation() {
       interval = setInterval(step, 1000 / (fps * speedMult));
     }
     return () => clearInterval(interval);
-  }, [running, particles, speedMult]);
+  }, [running, particles, speedMult, collisionsEnabled]);
 
   return (
     <div className="container">
@@ -123,9 +122,12 @@ export default function Simulation() {
           running={running}
           setRunning={setRunning}
           setParticles={setParticles}
+          setElapsed={setElapsed}
+          collisionsEnabled={collisionsEnabled}
+          setCollisionsEnabled={setCollisionsEnabled}
         />
         <canvas ref={canvasRef}></canvas>
-        <Stats particles={particles} elapsed={elapsed} numParticles={numParticles} />
+        <Stats particles={particles} elapsed={elapsed} />
       </div>
     </div>
   );

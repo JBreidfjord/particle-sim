@@ -10,6 +10,9 @@ export default function Controls({
   running,
   setRunning,
   setParticles,
+  setElapsed,
+  collisionsEnabled,
+  setCollisionsEnabled,
 }) {
   return (
     <div className="controls">
@@ -45,19 +48,22 @@ export default function Controls({
           step="0.00002"
         />
       </label>
+      <label>
+        Collisions
+        <input
+          type="checkbox"
+          checked={collisionsEnabled}
+          onChange={(collisionsEnabled) => setCollisionsEnabled(collisionsEnabled.target.checked)}
+        />
+      </label>
       <button onClick={() => setRunning((prevRunning) => !prevRunning)}>
         {running ? "Stop" : "Start"}
       </button>
       <button
-        onClick={() =>
-          setParticles(() => {
-            let particles = [];
-            for (let i = 0; i < numParticles; i++) {
-              particles.push(Particle.random(radius));
-            }
-            return particles;
-          })
-        }
+        onClick={() => {
+          setParticles(() => Particle.generateParticles(numParticles, radius));
+          setElapsed(0);
+        }}
       >
         Reset
       </button>
