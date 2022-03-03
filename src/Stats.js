@@ -1,7 +1,5 @@
 import Particle from "./Particle";
 
-const k = 1.38064852 * Math.pow(10, -23); // Boltzmann constant
-
 export default function Stats({ particles, elapsed }) {
   return (
     <div className="stats">
@@ -14,10 +12,10 @@ export default function Stats({ particles, elapsed }) {
           </p>
           <p>Elapsed: {elapsed.toFixed(2)}s</p>
           <p>
-            {/* P = (NkT)/A, where N is the number of particles and k is the Boltzmann constant */}
+            {/* P = K/A, where K is the total kinetic energy of the particles */}
             {/* A = 1 when container wall length = 1 */}
             Calculated Pressure:{" "}
-            {(particles.length * k * Particle.temperature(particles)).toFixed(5)}
+            {(Particle.totalKineticEnergy(particles) / (1 - Particle.area(particles))).toFixed(5)}
           </p>
         </>
       )}

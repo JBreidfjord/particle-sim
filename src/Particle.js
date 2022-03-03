@@ -1,5 +1,3 @@
-const k = 1.38064852 * Math.pow(10, -23); // Boltzmann constant
-
 export default class Particle {
   constructor(initialX, initialY, initialVx, initialVy, radius) {
     this.x = initialX;
@@ -199,12 +197,8 @@ export default class Particle {
     return 0.5 * particle.m * Math.hypot(particle.vx, particle.vy) ** 2;
   }
 
-  static temperature(particles) {
-    // T = 2/3 * 1/k * KEavg
-    const KE =
-      particles.reduce((acc, particle) => acc + Particle.kineticEnergy(particle), 0) /
-      particles.length;
-    return (2 / 3) * (1 / k) * KE;
+  static totalKineticEnergy(particles) {
+    return particles.reduce((energy, particle) => energy + Particle.kineticEnergy(particle), 0);
   }
 
   static area(particles) {
