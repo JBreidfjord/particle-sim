@@ -9,7 +9,7 @@ pub struct Particle {
     crate vy: f64,
     crate radius: f64,
     crate mass: f64,
-    crate momemtum_transferred: f64,
+    crate momentum_transferred: f64,
 }
 
 impl Particle {
@@ -19,7 +19,7 @@ impl Particle {
         let vx = rng.gen_range(-1.0..1.0);
         let vy = rng.gen_range(-1.0..1.0);
         let mass = PI * radius.powi(2);
-        let momemtum_transferred = 0.0;
+        let momentum_transferred = 0.0;
         Particle {
             x,
             y,
@@ -27,13 +27,13 @@ impl Particle {
             vy,
             radius,
             mass,
-            momemtum_transferred,
+            momentum_transferred,
         }
     }
 
     fn new(x: f64, y: f64, vx: f64, vy: f64, radius: f64) -> Particle {
         let mass = PI * radius.powi(2);
-        let momemtum_transferred = 0.0;
+        let momentum_transferred = 0.0;
         Particle {
             x,
             y,
@@ -41,7 +41,7 @@ impl Particle {
             vy,
             radius,
             mass,
-            momemtum_transferred,
+            momentum_transferred,
         }
     }
 
@@ -141,6 +141,93 @@ impl Particle {
                 }
             }
         }
+    }
+
+    pub fn update(&mut self, dt: f64) {
+        // Update position
+        self.x += self.vx * dt;
+        self.y += self.vy * dt;
+
+        self.handle_box_collision();
+    }
+
+    fn handle_box_collision(&mut self) {
+        // Side | Particle | Box
+        // Left | x - r | 0.0
+        // Right | x + r | 1.0
+        // Top | y + r | 1.0
+        // Bottom | y - r | 0.0
+        if self.x - self.radius <= 0.0 || self.x + self.radius >= 1.0 {
+            // Track momentum transfer
+            // Δp = 2mv⊥
+            self.momentum_transferred += 2.0 * self.mass * self.vx.abs();
+
+            // Reflect horizontal velocity
+            self.vx = -self.vx;
+
+            // Correct x position
+            // x at the time of collision is either radius or 1 - radius
+            let x_time_of_collision = if self.x - self.radius <= 0.0 {
+                self.radius
+            } else {
+                1.0 - self.radius
+            };
+            // Calculate change in x after collision occurs
+            // dx = x(1) - x(tc)
+            // dx is reflected about the vertical line at x(tc)
+            // Calculate final corrected x value
+            // x = x(tc) - dx = x(tc) - (x(1) - x(tc)) = 2x(tc) - x(1)
+            self.x = 2.0 * x_time_of_collision - self.x;
+        }
+
+        if self.y - self.radius <= 0.0 || self.y + self.radius >= 1.0 {
+            // Track momentum transfer
+            // Δp = 2mv⊥
+            self.momentum_transferred += 2.0 * self.mass * self.vy.abs();
+
+            // Reflect vertical velocity
+            self.vy = -self.vy;
+
+            // Correct y position
+            // y at the time of collision is either radius or 1 - radius
+            let y_time_of_collision = if self.y - self.radius <= 0.0 {
+                self.radius
+            } else {
+                1.0 - self.radius
+            };
+            // Calculate change in y after collision occurs
+            // dy = y(1) - y(tc)
+            // dy is reflected about the horizontal line at y(tc)
+            // Calculate final corrected y value
+            // y = y(tc) - dy = y(tc) - (y(1) - y(tc)) = 2y(tc) - y(1)
+            self.y = 2.0 * y_time_of_collision - self.y;
+        }
+    }
+
+    fn get_velocity(&self) -> f64 {
+        (self.vx * self.vx + self.vy * self.vy).sqrt()
+    }
+
+    pub fn get_kinetic_energy(&self) -> f64 {
+        0.5 * self.mass * self.get_velocity().powi(2)
+    }
+
+    pub fn get_total_kinetic_energy(particles: &[Particle]) -> f64 {
+        particles
+            .iter()
+            .fold(0.0, |acc, particle| acc + particle.get_kinetic_energy())
+    }
+
+    pub fn get_area(particles: &[Particle]) -> f64 {
+        particles
+            .iter()
+            .fold(0.0, |acc, particle| acc + particle.radius.powi(2) * PI)
+    }
+
+    pub fn get_total_momentum_transferred(particles: &[Particle]) -> f64 {
+        particles
+            .iter()
+            .fold(0.0, |acc, particle| acc + particle.momentum_transferred)
     }
 }
 
