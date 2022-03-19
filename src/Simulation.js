@@ -29,8 +29,8 @@ CanvasRenderingContext2D.prototype.drawCircle = function (x, y, radius, color) {
 };
 
 export default function Simulation() {
-  const [numParticles, setNumParticles] = useState(10);
-  const [radius, setRadius] = useState(0.04);
+  const [numParticles, setNumParticles] = useState(1000);
+  const [radius, setRadius] = useState(0.002);
   const [speedMult, setSpeedMult] = useState(1);
   const [particles, setParticles] = useState(() =>
     Particle.generateParticles(numParticles, radius)
