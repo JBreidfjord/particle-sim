@@ -1,3 +1,7 @@
+const logWithBase = (base, value) => {
+  return Math.log(value) / Math.log(base);
+};
+
 export default class Particle {
   constructor(initialX, initialY, initialVx, initialVy, radius) {
     this.x = initialX;
@@ -33,7 +37,7 @@ export default class Particle {
     // Uniform Grid Partition
     // Create a grid of particles
     let grid = [];
-    const gridSize = Math.ceil(Math.sqrt(particles.length));
+    const gridSize = Math.max(Math.ceil(logWithBase(1.6572725, particles.length) - 3.89293267), 2);
     const gridWidth = 1.0 / gridSize;
 
     // Check for particles within each grid cell
