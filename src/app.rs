@@ -32,21 +32,19 @@ impl App {
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            let dt = ui.input().unstable_dt.at_most(1.0 / 30.0);
-            update_and_draw_particles(ui, &mut self.particles, 1.0 / 120.0, self.particle_radius);
+            let dt = ui.input().unstable_dt.at_most(1.0 / 120.0);
+            self.particles = Particle::update_particles(&mut self.particles, dt);
+
+            self.particles.iter().for_each(|p| {
+                ui.painter().circle_filled(
+                    egui::Pos2::new(p.x * 800.0, p.y * 800.0),
+                    self.particle_radius * 800.0,
+                    egui::Color32::RED,
+                );
+            });
+
             self.time += dt;
             ui.ctx().request_repaint();
         });
     }
-}
-
-fn update_and_draw_particles(ui: &mut egui::Ui, particles: &mut [Particle], dt: f32, r: f32) {
-    particles.iter_mut().for_each(|p| {
-        p.update(dt);
-        ui.painter().circle_filled(
-            egui::Pos2::new(p.x * 800.0, p.y * 800.0),
-            r * 800.0,
-            egui::Color32::RED,
-        );
-    });
 }

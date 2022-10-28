@@ -52,11 +52,11 @@ impl Particle {
             .collect()
     }
 
-    pub fn generate_pairs(particles: Vec<Particle>) -> Vec<(Particle, Particle)> {
+    pub fn generate_pairs(particles: &[Particle]) -> Vec<((usize, Particle), (usize, Particle))> {
         // Uniform Grid Partition
         // Create a grid of particles
         let mut grid = Vec::new();
-        let grid_size = ((particles.len() as f32).log(1.6572725) - 3.89293267)
+        let grid_size = ((particles.len() as f32).log(1.6572725) - 3.8929327)
             .ceil()
             .max(2.0) as usize;
         let grid_width = 1.0 / grid_size as f32;
@@ -67,14 +67,14 @@ impl Particle {
             for j in 0..grid_size {
                 let x = i as f32 * grid_width;
                 let y = j as f32 * grid_width;
-                let mut particles_in_cell: Vec<Particle> = Vec::new();
-                for particle in particles.iter() {
+                let mut particles_in_cell = Vec::new();
+                for (index, particle) in particles.iter().enumerate() {
                     if particle.x + particle.radius >= x
                         && particle.x - particle.radius <= x + grid_width
                         && particle.y + particle.radius >= y
                         && particle.y - particle.radius <= y + grid_width
                     {
-                        particles_in_cell.push(*particle);
+                        particles_in_cell.push((index, *particle));
                     }
                 }
                 grid.push(particles_in_cell);
@@ -99,8 +99,10 @@ impl Particle {
         pairs
     }
 
-    fn handle_particle_collisions(mut particle_pairs: Vec<(Particle, Particle)>) {
-        for (particle_a, particle_b) in particle_pairs.iter_mut() {
+    pub fn handle_particle_collisions(
+        mut particle_pairs: Vec<((usize, Particle), (usize, Particle))>,
+    ) -> Vec<((usize, Particle), (usize, Particle))> {
+        for ((_, particle_a), (_, particle_b)) in particle_pairs.iter_mut() {
             // Set the differences in velocities and positions
             let dx = particle_b.x - particle_a.x;
             let dy = particle_b.y - particle_a.y;
@@ -143,6 +145,8 @@ impl Particle {
                 }
             }
         }
+
+        particle_pairs
     }
 
     pub fn update(&mut self, dt: f32) {
@@ -151,6 +155,23 @@ impl Particle {
         self.y += self.vy * dt;
 
         self.handle_box_collision();
+    }
+
+    pub fn update_particles(particles: &mut [Particle], dt: f32) -> Vec<Particle> {
+        particles
+            .iter_mut()
+            .for_each(|particle| particle.update(dt));
+
+        let mut pairs = Particle::generate_pairs(particles);
+        pairs = Particle::handle_particle_collisions(pairs);
+
+        pairs.iter().for_each(|((i1, p1), (i2, p2))| {
+            println!("{} and {}", i1, i2);
+            particles[*i1] = *p1;
+            particles[*i2] = *p2;
+        });
+
+        particles.to_vec()
     }
 
     fn handle_box_collision(&mut self) {
