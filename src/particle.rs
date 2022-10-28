@@ -1,21 +1,21 @@
 use rand::{Rng, RngCore};
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Particle {
-    x: f64,
-    y: f64,
-    vx: f64,
-    vy: f64,
-    radius: f64,
-    mass: f64,
-    momentum_transferred: f64,
+    pub x: f32,
+    pub y: f32,
+    vx: f32,
+    vy: f32,
+    radius: f32,
+    mass: f32,
+    momentum_transferred: f32,
 }
 
 impl Particle {
-    fn random(rng: &mut dyn RngCore, radius: f64) -> Particle {
-        let x = rng.gen::<f64>().min(1.0 - radius * 1.5).max(radius * 1.5);
-        let y = rng.gen::<f64>().min(1.0 - radius * 1.5).max(radius * 1.5);
+    fn random(rng: &mut dyn RngCore, radius: f32) -> Particle {
+        let x = rng.gen::<f32>().min(1.0 - radius * 1.5).max(radius * 1.5);
+        let y = rng.gen::<f32>().min(1.0 - radius * 1.5).max(radius * 1.5);
         let vx = rng.gen_range(-1.0..1.0);
         let vy = rng.gen_range(-1.0..1.0);
         let mass = PI * radius.powi(2);
@@ -31,7 +31,7 @@ impl Particle {
         }
     }
 
-    fn new(x: f64, y: f64, vx: f64, vy: f64, radius: f64) -> Particle {
+    fn new(x: f32, y: f32, vx: f32, vy: f32, radius: f32) -> Particle {
         let mass = PI * radius.powi(2);
         let momentum_transferred = 0.0;
         Particle {
@@ -45,7 +45,7 @@ impl Particle {
         }
     }
 
-    pub fn generate_particles(num_particles: usize, radius: f64) -> Vec<Particle> {
+    pub fn generate_particles(num_particles: usize, radius: f32) -> Vec<Particle> {
         let mut rng = rand::thread_rng();
         (0..num_particles)
             .map(|_| Particle::random(&mut rng, radius))
@@ -56,17 +56,17 @@ impl Particle {
         // Uniform Grid Partition
         // Create a grid of particles
         let mut grid = Vec::new();
-        let grid_size = ((particles.len() as f64).log(1.6572725) - 3.89293267)
+        let grid_size = ((particles.len() as f32).log(1.6572725) - 3.89293267)
             .ceil()
             .max(2.0) as usize;
-        let grid_width = 1.0 / grid_size as f64;
+        let grid_width = 1.0 / grid_size as f32;
 
         // Check for particles within each grid cell
         // If a particle is on the border between cells, it is added to both cells
         for i in 0..grid_size {
             for j in 0..grid_size {
-                let x = i as f64 * grid_width;
-                let y = j as f64 * grid_width;
+                let x = i as f32 * grid_width;
+                let y = j as f32 * grid_width;
                 let mut particles_in_cell: Vec<Particle> = Vec::new();
                 for particle in particles.iter() {
                     if particle.x + particle.radius >= x
@@ -145,7 +145,7 @@ impl Particle {
         }
     }
 
-    fn update(&mut self, dt: f64) {
+    pub fn update(&mut self, dt: f32) {
         // Update position
         self.x += self.vx * dt;
         self.y += self.vy * dt;
@@ -206,27 +206,27 @@ impl Particle {
         }
     }
 
-    fn get_velocity(&self) -> f64 {
+    fn get_velocity(&self) -> f32 {
         (self.vx * self.vx + self.vy * self.vy).sqrt()
     }
 
-    fn get_kinetic_energy(&self) -> f64 {
+    fn get_kinetic_energy(&self) -> f32 {
         0.5 * self.mass * self.get_velocity().powi(2)
     }
 
-    fn get_total_kinetic_energy(particles: &[Particle]) -> f64 {
+    fn get_total_kinetic_energy(particles: &[Particle]) -> f32 {
         particles
             .iter()
             .fold(0.0, |acc, particle| acc + particle.get_kinetic_energy())
     }
 
-    fn get_area(particles: &[Particle]) -> f64 {
+    fn get_area(particles: &[Particle]) -> f32 {
         particles
             .iter()
             .fold(0.0, |acc, particle| acc + particle.radius.powi(2) * PI)
     }
 
-    fn get_total_momentum_transferred(particles: &[Particle]) -> f64 {
+    fn get_total_momentum_transferred(particles: &[Particle]) -> f32 {
         particles
             .iter()
             .fold(0.0, |acc, particle| acc + particle.momentum_transferred)
