@@ -74,7 +74,7 @@ impl Particle {
                         && particle.y + particle.radius >= y
                         && particle.y - particle.radius <= y + grid_width
                     {
-                        particles_in_cell.push(particle.clone());
+                        particles_in_cell.push(*particle);
                     }
                 }
                 grid.push(particles_in_cell);
@@ -88,10 +88,10 @@ impl Particle {
 
         // Iterate through grid cells and create pairs
         let mut pairs = Vec::new();
-        for particles_in_cell in filtered_grid.into_iter() {
+        for particles_in_cell in filtered_grid {
             for i in 0..particles_in_cell.len() {
                 for j in i + 1..particles_in_cell.len() {
-                    pairs.push((particles_in_cell[i].clone(), particles_in_cell[j].clone()));
+                    pairs.push((particles_in_cell[i], particles_in_cell[j]));
                 }
             }
         }
@@ -237,7 +237,7 @@ impl Particle {
 mod tests {
     use super::*;
 
-    fn get_matching_count(a: &Vec<(Particle, Particle)>, b: &Vec<(Particle, Particle)>) -> usize {
+    fn get_matching_count(a: &[(Particle, Particle)], b: &[(Particle, Particle)]) -> usize {
         a.iter()
             .zip(b.iter())
             .filter(|&(a, b)| a.0 == b.0 && a.1 == b.1)
