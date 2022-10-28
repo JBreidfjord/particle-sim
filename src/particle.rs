@@ -1,19 +1,19 @@
-use crate::*;
+use rand::{Rng, RngCore};
 use std::f64::consts::PI;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Particle {
-    crate x: f64,
-    crate y: f64,
-    crate vx: f64,
-    crate vy: f64,
-    crate radius: f64,
-    crate mass: f64,
-    crate momentum_transferred: f64,
+struct Particle {
+    x: f64,
+    y: f64,
+    vx: f64,
+    vy: f64,
+    radius: f64,
+    mass: f64,
+    momentum_transferred: f64,
 }
 
 impl Particle {
-    pub fn random(rng: &mut dyn RngCore, radius: f64) -> Particle {
+    fn random(rng: &mut dyn RngCore, radius: f64) -> Particle {
         let x = rng.gen::<f64>().min(1.0 - radius * 1.5).max(radius * 1.5);
         let y = rng.gen::<f64>().min(1.0 - radius * 1.5).max(radius * 1.5);
         let vx = rng.gen_range(-1.0..1.0);
@@ -45,14 +45,14 @@ impl Particle {
         }
     }
 
-    pub fn generate_particles(num_particles: usize, radius: f64) -> Vec<Particle> {
+    fn generate_particles(num_particles: usize, radius: f64) -> Vec<Particle> {
         let mut rng = rand::thread_rng();
         (0..num_particles)
             .map(|_| Particle::random(&mut rng, radius))
             .collect()
     }
 
-    pub fn generate_pairs(particles: Vec<Particle>) -> Vec<(Particle, Particle)> {
+    fn generate_pairs(particles: Vec<Particle>) -> Vec<(Particle, Particle)> {
         // Uniform Grid Partition
         // Create a grid of particles
         let mut grid = Vec::new();
@@ -99,7 +99,7 @@ impl Particle {
         pairs
     }
 
-    pub fn handle_particle_collisions(mut particle_pairs: Vec<(Particle, Particle)>) {
+    fn handle_particle_collisions(mut particle_pairs: Vec<(Particle, Particle)>) {
         for (particle_a, particle_b) in particle_pairs.iter_mut() {
             // Set the differences in velocities and positions
             let dx = particle_b.x - particle_a.x;
@@ -145,7 +145,7 @@ impl Particle {
         }
     }
 
-    pub fn update(&mut self, dt: f64) {
+    fn update(&mut self, dt: f64) {
         // Update position
         self.x += self.vx * dt;
         self.y += self.vy * dt;
@@ -210,23 +210,23 @@ impl Particle {
         (self.vx * self.vx + self.vy * self.vy).sqrt()
     }
 
-    pub fn get_kinetic_energy(&self) -> f64 {
+    fn get_kinetic_energy(&self) -> f64 {
         0.5 * self.mass * self.get_velocity().powi(2)
     }
 
-    pub fn get_total_kinetic_energy(particles: &[Particle]) -> f64 {
+    fn get_total_kinetic_energy(particles: &[Particle]) -> f64 {
         particles
             .iter()
             .fold(0.0, |acc, particle| acc + particle.get_kinetic_energy())
     }
 
-    pub fn get_area(particles: &[Particle]) -> f64 {
+    fn get_area(particles: &[Particle]) -> f64 {
         particles
             .iter()
             .fold(0.0, |acc, particle| acc + particle.radius.powi(2) * PI)
     }
 
-    pub fn get_total_momentum_transferred(particles: &[Particle]) -> f64 {
+    fn get_total_momentum_transferred(particles: &[Particle]) -> f64 {
         particles
             .iter()
             .fold(0.0, |acc, particle| acc + particle.momentum_transferred)
