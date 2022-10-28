@@ -2,7 +2,7 @@ use rand::{Rng, RngCore};
 use std::f64::consts::PI;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Particle {
+pub struct Particle {
     x: f64,
     y: f64,
     vx: f64,
@@ -45,14 +45,14 @@ impl Particle {
         }
     }
 
-    fn generate_particles(num_particles: usize, radius: f64) -> Vec<Particle> {
+    pub fn generate_particles(num_particles: usize, radius: f64) -> Vec<Particle> {
         let mut rng = rand::thread_rng();
         (0..num_particles)
             .map(|_| Particle::random(&mut rng, radius))
             .collect()
     }
 
-    fn generate_pairs(particles: Vec<Particle>) -> Vec<(Particle, Particle)> {
+    pub fn generate_pairs(particles: Vec<Particle>) -> Vec<(Particle, Particle)> {
         // Uniform Grid Partition
         // Create a grid of particles
         let mut grid = Vec::new();
@@ -345,14 +345,6 @@ mod tests {
 
     #[test]
     fn test_generate_pairs_performance() {
-        use std::time::SystemTime;
-        let num_particles = 100_000;
-        let particles = Particle::generate_particles(num_particles, 0.0002);
-        let start = SystemTime::now();
-        let _pairs = Particle::generate_pairs(particles);
-        let end = SystemTime::now();
-        let duration = end.duration_since(start).unwrap();
-        println!("Time taken for {} particles: {:?}", num_particles, duration);
         panic!("");
     }
 }
