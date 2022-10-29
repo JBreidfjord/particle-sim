@@ -1,5 +1,5 @@
 use rand::{Rng, RngCore};
-use std::f32::consts::PI;
+use std::{f32::consts::PI, ops::Mul};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Particle {
@@ -10,14 +10,23 @@ pub struct Particle {
     radius: f32,
     mass: f32,
     momentum_transferred: f32,
+    box_size: f32,
 }
 
 impl Particle {
-    fn random(rng: &mut dyn RngCore, radius: f32) -> Particle {
-        let x = rng.gen::<f32>().min(1.0 - radius * 1.5).max(radius * 1.5);
-        let y = rng.gen::<f32>().min(1.0 - radius * 1.5).max(radius * 1.5);
-        let vx = rng.gen_range(-1.0..1.0);
-        let vy = rng.gen_range(-1.0..1.0);
+    fn random(rng: &mut dyn RngCore, radius: f32, box_size: f32) -> Particle {
+        let x = rng
+            .gen::<f32>()
+            .mul(box_size)
+            .min(box_size - radius * 1.5)
+            .max(radius * 1.5);
+        let y = rng
+            .gen::<f32>()
+            .mul(box_size)
+            .min(box_size - radius * 1.5)
+            .max(radius * 1.5);
+        let vx = rng.gen_range(-100.0..100.0);
+        let vy = rng.gen_range(-100.0..100.0);
         let mass = PI * radius.powi(2);
         let momentum_transferred = 0.0;
         Particle {
@@ -28,10 +37,11 @@ impl Particle {
             radius,
             mass,
             momentum_transferred,
+            box_size,
         }
     }
 
-    fn new(x: f32, y: f32, vx: f32, vy: f32, radius: f32) -> Particle {
+    fn new(x: f32, y: f32, vx: f32, vy: f32, radius: f32, box_size: f32) -> Particle {
         let mass = PI * radius.powi(2);
         let momentum_transferred = 0.0;
         Particle {
@@ -42,24 +52,28 @@ impl Particle {
             radius,
             mass,
             momentum_transferred,
+            box_size,
         }
     }
 
-    pub fn generate_particles(num_particles: usize, radius: f32) -> Vec<Particle> {
+    pub fn generate_particles(num_particles: usize, radius: f32, box_size: f32) -> Vec<Particle> {
         let mut rng = rand::thread_rng();
         (0..num_particles)
-            .map(|_| Particle::random(&mut rng, radius))
+            .map(|_| Particle::random(&mut rng, radius, box_size))
             .collect()
     }
 
-    pub fn generate_pairs(particles: &[Particle]) -> Vec<((usize, Particle), (usize, Particle))> {
+    pub fn generate_pairs(
+        particles: &[Particle],
+        box_size: f32,
+    ) -> Vec<((usize, Particle), (usize, Particle))> {
         // Uniform Grid Partition
         // Create a grid of particles
         let mut grid = Vec::new();
         let grid_size = ((particles.len() as f32).log(1.6572725) - 3.8929327)
             .ceil()
             .max(2.0) as usize;
-        let grid_width = 1.0 / grid_size as f32;
+        let grid_width = box_size / grid_size as f32;
 
         // Check for particles within each grid cell
         // If a particle is on the border between cells, it is added to both cells
@@ -157,12 +171,12 @@ impl Particle {
         self.handle_box_collision();
     }
 
-    pub fn update_particles(particles: &mut [Particle], dt: f32) -> Vec<Particle> {
+    pub fn update_particles(particles: &mut [Particle], dt: f32, box_size: f32) -> Vec<Particle> {
         particles
             .iter_mut()
             .for_each(|particle| particle.update(dt));
 
-        let mut pairs = Particle::generate_pairs(particles);
+        let mut pairs = Particle::generate_pairs(particles, box_size);
         pairs = Particle::handle_particle_collisions(pairs);
 
         pairs.iter().for_each(|((i1, p1), (i2, p2))| {
@@ -177,10 +191,10 @@ impl Particle {
     fn handle_box_collision(&mut self) {
         // Side | Particle | Box
         // Left | x - r | 0.0
-        // Right | x + r | 1.0
-        // Top | y + r | 1.0
+        // Right | x + r | box_size
+        // Top | y + r | box_size
         // Bottom | y - r | 0.0
-        if self.x - self.radius <= 0.0 || self.x + self.radius >= 1.0 {
+        if self.x - self.radius <= 0.0 || self.x + self.radius >= self.box_size {
             // Track momentum transfer
             // Δp = 2mv⊥
             self.momentum_transferred += 2.0 * self.mass * self.vx.abs();
@@ -189,11 +203,11 @@ impl Particle {
             self.vx = -self.vx;
 
             // Correct x position
-            // x at the time of collision is either radius or 1 - radius
+            // x at the time of collision is either radius or box_size - radius
             let x_time_of_collision = if self.x - self.radius <= 0.0 {
                 self.radius
             } else {
-                1.0 - self.radius
+                self.box_size - self.radius
             };
             // Calculate change in x after collision occurs
             // dx = x(1) - x(tc)
@@ -203,7 +217,7 @@ impl Particle {
             self.x = 2.0 * x_time_of_collision - self.x;
         }
 
-        if self.y - self.radius <= 0.0 || self.y + self.radius >= 1.0 {
+        if self.y - self.radius <= 0.0 || self.y + self.radius >= self.box_size {
             // Track momentum transfer
             // Δp = 2mv⊥
             self.momentum_transferred += 2.0 * self.mass * self.vy.abs();
@@ -212,11 +226,11 @@ impl Particle {
             self.vy = -self.vy;
 
             // Correct y position
-            // y at the time of collision is either radius or 1 - radius
+            // y at the time of collision is either radius or box_size - radius
             let y_time_of_collision = if self.y - self.radius <= 0.0 {
                 self.radius
             } else {
-                1.0 - self.radius
+                self.box_size - self.radius
             };
             // Calculate change in y after collision occurs
             // dy = y(1) - y(tc)

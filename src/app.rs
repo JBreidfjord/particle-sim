@@ -5,15 +5,17 @@ pub struct App {
     particles: Vec<Particle>,
     particle_radius: f32,
     time: f32,
+    size: f32,
 }
 
 impl Default for App {
     fn default() -> Self {
-        let particle_radius = 0.02;
+        let box_size = 400.0;
         Self {
-            particles: Particle::generate_particles(10, particle_radius),
-            particle_radius,
+            particles: Particle::generate_particles(10, 10.0, box_size),
+            particle_radius: 10.0,
             time: 0.0,
+            size: box_size,
         }
     }
 }
@@ -33,12 +35,12 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             let dt = ui.input().unstable_dt.at_most(1.0 / 120.0);
-            self.particles = Particle::update_particles(&mut self.particles, dt);
+            self.particles = Particle::update_particles(&mut self.particles, dt, self.size);
 
             self.particles.iter().for_each(|p| {
                 ui.painter().circle_filled(
-                    egui::Pos2::new(p.x * 800.0, p.y * 800.0),
-                    self.particle_radius * 800.0,
+                    egui::Pos2::new(p.x, p.y),
+                    self.particle_radius,
                     egui::Color32::RED,
                 );
             });
