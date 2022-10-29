@@ -272,114 +272,172 @@ impl Particle {
 mod tests {
     use super::*;
 
-    fn get_matching_count(a: &[(Particle, Particle)], b: &[(Particle, Particle)]) -> usize {
+    fn get_matching_count(
+        a: &[((usize, Particle), (usize, Particle))],
+        b: &[((usize, Particle), (usize, Particle))],
+    ) -> usize {
         a.iter()
             .zip(b.iter())
-            .filter(|&(a, b)| a.0 == b.0 && a.1 == b.1)
+            .filter(|&(a, b)| a.0 .1 == b.0 .1 && a.1 .1 == b.1 .1)
             .count()
     }
 
-    #[test]
-    fn test_generate_no_pairs() {
-        let particles = vec![
-            Particle::new(0.25, 0.25, 0.0, 0.0, 0.04), // Bottom left quadrant
-            Particle::new(0.25, 0.75, 0.0, 0.0, 0.04), // Top left quadrant
-            Particle::new(0.75, 0.75, 0.0, 0.0, 0.04), // Top right quadrant
-            Particle::new(0.75, 0.25, 0.0, 0.0, 0.04), // Bottom right quadrant
-        ];
-        let pairs = Particle::generate_pairs(particles);
-        let expected_pairs: Vec<(Particle, Particle)> = vec![];
+    mod test_pair_generation {
+        use super::*;
 
-        assert_eq!(pairs.len(), expected_pairs.len());
-        let matching = get_matching_count(&pairs, &expected_pairs);
-        assert!(matching == pairs.len() && matching == expected_pairs.len());
+        #[test]
+        fn test_generate_no_pairs() {
+            let box_size = 1.0;
+            let particles = vec![
+                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size), // Bottom left quadrant
+                Particle::new(0.25, 0.75, 0.0, 0.0, 0.04, box_size), // Top left quadrant
+                Particle::new(0.75, 0.75, 0.0, 0.0, 0.04, box_size), // Top right quadrant
+                Particle::new(0.75, 0.25, 0.0, 0.0, 0.04, box_size), // Bottom right quadrant
+            ];
+            let pairs = Particle::generate_pairs(&particles, box_size);
+            let expected_pairs: Vec<((usize, Particle), (usize, Particle))> = vec![];
+
+            assert_eq!(pairs.len(), expected_pairs.len());
+            let matching = get_matching_count(&pairs, &expected_pairs);
+            assert!(matching == pairs.len() && matching == expected_pairs.len());
+        }
+
+        #[test]
+        fn test_generate_pairs() {
+            let box_size = 1.0;
+            let particles = vec![
+                Particle::new(0.1, 0.1, 0.0, 0.0, 0.04, box_size), // Bottom left quadrant
+                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size), // Bottom left quadrant
+                Particle::new(0.9, 0.9, 0.0, 0.0, 0.04, box_size), // Top right quadrant
+                Particle::new(0.8, 0.8, 0.0, 0.0, 0.04, box_size), // Top right quadrant
+            ];
+            let pairs = Particle::generate_pairs(&particles, box_size);
+            let expected_pairs = vec![
+                (
+                    (0, Particle::new(0.1, 0.1, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size)),
+                ),
+                (
+                    (0, Particle::new(0.9, 0.9, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.8, 0.8, 0.0, 0.0, 0.04, box_size)),
+                ),
+            ];
+
+            assert_eq!(pairs.len(), expected_pairs.len());
+            let matching = get_matching_count(&pairs, &expected_pairs);
+            assert!(matching == pairs.len() && matching == expected_pairs.len());
+        }
+
+        #[test]
+        fn test_generate_multiple_pairs_per_grid_cell() {
+            let box_size = 1.0;
+            let particles = vec![
+                Particle::new(0.1, 0.1, 0.0, 0.0, 0.04, box_size), // Bottom left quadrant
+                Particle::new(0.15, 0.15, 0.0, 0.0, 0.04, box_size), // Bottom left quadrant
+                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size), // Bottom left quadrant
+                Particle::new(0.8, 0.8, 0.0, 0.0, 0.04, box_size), // Top right quadrant
+            ];
+            let pairs = Particle::generate_pairs(&particles, box_size);
+            let expected_pairs = vec![
+                (
+                    (0, Particle::new(0.1, 0.1, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.15, 0.15, 0.0, 0.0, 0.04, box_size)),
+                ),
+                (
+                    (0, Particle::new(0.1, 0.1, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size)),
+                ),
+                (
+                    (0, Particle::new(0.15, 0.15, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size)),
+                ),
+            ];
+
+            assert_eq!(pairs.len(), expected_pairs.len());
+            let matching = get_matching_count(&pairs, &expected_pairs);
+            assert!(matching == pairs.len() && matching == expected_pairs.len());
+        }
+
+        #[test]
+        fn test_generate_pairs_for_particles_on_cell_border() {
+            let box_size = 1.0;
+            let particles = vec![
+                Particle::new(0.5, 0.5, 0.0, 0.0, 0.04, box_size), // Center
+                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size), // Bottom left quadrant
+                Particle::new(0.25, 0.75, 0.0, 0.0, 0.04, box_size), // Top left quadrant
+                Particle::new(0.75, 0.75, 0.0, 0.0, 0.04, box_size), // Top right quadrant
+            ];
+            let pairs = Particle::generate_pairs(&particles, box_size);
+            let expected_pairs = vec![
+                (
+                    (0, Particle::new(0.5, 0.5, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.25, 0.25, 0.0, 0.0, 0.04, box_size)),
+                ),
+                (
+                    (0, Particle::new(0.5, 0.5, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.25, 0.75, 0.0, 0.0, 0.04, box_size)),
+                ),
+                (
+                    (0, Particle::new(0.5, 0.5, 0.0, 0.0, 0.04, box_size)),
+                    (0, Particle::new(0.75, 0.75, 0.0, 0.0, 0.04, box_size)),
+                ),
+            ];
+
+            assert_eq!(pairs.len(), expected_pairs.len());
+            let matching = get_matching_count(&pairs, &expected_pairs);
+            assert!(matching == pairs.len() && matching == expected_pairs.len());
+        }
     }
 
-    #[test]
-    fn test_generate_pairs() {
-        let particles = vec![
-            Particle::new(0.1, 0.1, 0.0, 0.0, 0.04), // Bottom left quadrant
-            Particle::new(0.25, 0.25, 0.0, 0.0, 0.04), // Bottom left quadrant
-            Particle::new(0.9, 0.9, 0.0, 0.0, 0.04), // Top right quadrant
-            Particle::new(0.8, 0.8, 0.0, 0.0, 0.04), // Top right quadrant
-        ];
-        let pairs = Particle::generate_pairs(particles);
-        let expected_pairs = vec![
-            (
-                Particle::new(0.1, 0.1, 0.0, 0.0, 0.04),
-                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04),
-            ),
-            (
-                Particle::new(0.9, 0.9, 0.0, 0.0, 0.04),
-                Particle::new(0.8, 0.8, 0.0, 0.0, 0.04),
-            ),
-        ];
+    mod test_update {
+        use super::*;
 
-        assert_eq!(pairs.len(), expected_pairs.len());
-        let matching = get_matching_count(&pairs, &expected_pairs);
-        assert!(matching == pairs.len() && matching == expected_pairs.len());
+        #[test]
+        fn test_stopped_particle_update() {
+            let mut particle = Particle::new(0.1, 0.1, 0.0, 0.0, 0.04, 1.0);
+            particle.update(0.1);
+            assert_eq!(particle.x, 0.1 + 0.0 * 0.1);
+            assert_eq!(particle.y, 0.1 + 0.0 * 0.1);
+        }
+
+        #[test]
+        fn test_moving_particle_update() {
+            let mut particle = Particle::new(0.1, 0.1, 0.1, 0.1, 0.04, 1.0);
+            particle.update(0.1);
+            assert_eq!(particle.x, 0.1 + 0.1 * 0.1);
+            assert_eq!(particle.y, 0.1 + 0.1 * 0.1);
+        }
+
+        #[test]
+        fn test_fast_moving_particle_update() {
+            let mut particle = Particle::new(0.1, 0.1, 1.0, 1.0, 0.04, 1.0);
+            particle.update(0.1);
+            assert_eq!(particle.x, 0.1 + 1.0 * 0.1);
+            assert_eq!(particle.y, 0.1 + 1.0 * 0.1);
+        }
     }
 
-    #[test]
-    fn test_generate_multiple_pairs_per_grid_cell() {
-        let particles = vec![
-            Particle::new(0.1, 0.1, 0.0, 0.0, 0.04), // Bottom left quadrant
-            Particle::new(0.15, 0.15, 0.0, 0.0, 0.04), // Bottom left quadrant
-            Particle::new(0.25, 0.25, 0.0, 0.0, 0.04), // Bottom left quadrant
-            Particle::new(0.8, 0.8, 0.0, 0.0, 0.04), // Top right quadrant
-        ];
-        let pairs = Particle::generate_pairs(particles);
-        let expected_pairs = vec![
-            (
-                Particle::new(0.1, 0.1, 0.0, 0.0, 0.04),
-                Particle::new(0.15, 0.15, 0.0, 0.0, 0.04),
-            ),
-            (
-                Particle::new(0.1, 0.1, 0.0, 0.0, 0.04),
-                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04),
-            ),
-            (
-                Particle::new(0.15, 0.15, 0.0, 0.0, 0.04),
-                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04),
-            ),
-        ];
+    mod test_particle_collisions {
+        use super::*;
 
-        assert_eq!(pairs.len(), expected_pairs.len());
-        let matching = get_matching_count(&pairs, &expected_pairs);
-        assert!(matching == pairs.len() && matching == expected_pairs.len());
-    }
+        #[test]
+        fn test_straight_particle_collision() {
+            let particle1 = Particle::new(0.4, 0.5, 0.2, 0.0, 0.05, 1.0);
+            let particle2 = Particle::new(0.6, 0.5, 0.0, 0.0, 0.05, 1.0);
+            let mut particles = vec![particle1, particle2];
+            particles = Particle::update_particles(&mut particles, 1.0, 1.0);
+            assert_eq!(particles[0], Particle::new(0.5, 0.5, 0.0, 0.0, 0.05, 1.0));
+            assert_eq!(particles[1], Particle::new(0.7, 0.5, 0.2, 0.0, 0.05, 1.0));
+        }
 
-    #[test]
-    fn test_generate_pairs_for_particles_on_cell_border() {
-        let particles = vec![
-            Particle::new(0.5, 0.5, 0.0, 0.0, 0.04),   // Center
-            Particle::new(0.25, 0.25, 0.0, 0.0, 0.04), // Bottom left quadrant
-            Particle::new(0.25, 0.75, 0.0, 0.0, 0.04), // Top left quadrant
-            Particle::new(0.75, 0.75, 0.0, 0.0, 0.04), // Top right quadrant
-        ];
-        let pairs = Particle::generate_pairs(particles);
-        let expected_pairs = vec![
-            (
-                Particle::new(0.5, 0.5, 0.0, 0.0, 0.04),
-                Particle::new(0.25, 0.25, 0.0, 0.0, 0.04),
-            ),
-            (
-                Particle::new(0.5, 0.5, 0.0, 0.0, 0.04),
-                Particle::new(0.25, 0.75, 0.0, 0.0, 0.04),
-            ),
-            (
-                Particle::new(0.5, 0.5, 0.0, 0.0, 0.04),
-                Particle::new(0.75, 0.75, 0.0, 0.0, 0.04),
-            ),
-        ];
-
-        assert_eq!(pairs.len(), expected_pairs.len());
-        let matching = get_matching_count(&pairs, &expected_pairs);
-        assert!(matching == pairs.len() && matching == expected_pairs.len());
-    }
-
-    #[test]
-    fn test_generate_pairs_performance() {
-        panic!("");
+        #[test]
+        fn test_diagonal_particle_collision() {
+            let particle1 = Particle::new(0.4, 0.4, 0.2, 0.2, 0.05, 1.0);
+            let particle2 = Particle::new(0.6, 0.6, 0.0, 0.0, 0.05, 1.0);
+            let mut particles = vec![particle1, particle2];
+            particles = Particle::update_particles(&mut particles, 1.0, 1.0);
+            assert_eq!(particles[0], Particle::new(0.5, 0.5, 0.0, 0.0, 0.05, 1.0));
+            assert_eq!(particles[1], Particle::new(0.7, 0.7, 0.2, 0.2, 0.05, 1.0));
+        }
     }
 }
