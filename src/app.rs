@@ -43,6 +43,13 @@ impl eframe::App for App {
                     self.particle_radius,
                     egui::Color32::RED,
                 );
+                ui.painter().text(
+                    egui::Pos2::new(p.x, p.y),
+                    egui::Align2::CENTER_CENTER,
+                    format!("{:.2}, {:.2}", p.x, p.y),
+                    egui::FontId::default(),
+                    egui::Color32::WHITE,
+                );
             });
 
             self.time += dt;
